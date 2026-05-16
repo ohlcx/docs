@@ -1,0 +1,12 @@
+{# Root-absolute logo URL so nested pages do not resolve assets/ relative to subpaths #}
+{% if config.theme.logo %}
+  <a
+    href="{{ nav.homepage.url | url }}"
+    title="{{ config.site_name }}"
+    class="md-header__button md-logo"
+    aria-label="{{ config.site_name }}"
+    data-md-component="logo"
+  >
+    <img src="{{ config.theme.logo | url }}" alt="{{ config.site_name }}" draggable="false" />
+  </a>
+{% endif %}

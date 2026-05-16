@@ -40,7 +40,7 @@ OHLCX is a **Laravel + React** trading platform: Schwab brokerage integration, u
 
 ## Links
 
-- **Product:** [ohlcx.online](https://www.ohlcx.online)
+- **Product:** [ohlcx.com](https://www.ohlcx.com)
 - **Docs repo:** [github.com/ohlcx/docs](https://github.com/ohlcx/docs)
 - **Disclaimer:** [DISCLAIMER.md](DISCLAIMER.md)
 
@@ -59,6 +59,8 @@ mkdocs serve
 ```
 
 Open **http://127.0.0.1:8000** (MkDocs Material dev server; edits reload on save).
+
+**Branding:** Colors match [ohlcx.com](https://www.ohlcx.com) (navy `#05122b`, cyan accents, subtle grid). See `docs/stylesheets/extra.css`. Dark mode is the default palette. Logo: `docs/assets/logo3.svg`.
 
 **Production-style build** (same output as GitHub Pages):
 

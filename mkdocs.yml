@@ -5,21 +5,35 @@ repo_url: https://github.com/ohlcx/docs
 repo_name: ohlcx/docs
 edit_uri: edit/main/docs/
 
+copyright: Copyright &copy; OHLCX Technologies
+
+site_author: OHLCX Technologies
+site_version: 1.0.0
+site_license: MIT License
+site_keywords: OHLCX, trading, platform, API, AI, MCP, architecture, setup
+site_author_email: support@ohlcx.com
+site_author_url: https://www.ohlcx.com
+site_author_twitter: ohlcx
+site_author_github: ohlcx
 theme:
   name: material
+  custom_dir: overrides
+  logo: assets/logo3.svg
+  favicon: assets/favicon.svg
   palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
+    # Dark first — matches ohlcx.com marketing site
+    - scheme: slate
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: indigo
+        name: Switch to light mode
+    - scheme: default
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-4
-        name: Switch to light mode
+        name: Switch to dark mode
   features:
     - navigation.tabs
     - navigation.sections
@@ -31,6 +45,9 @@ theme:
 
 plugins:
   - search
+
+extra_css:
+  - stylesheets/extra.css
 
 markdown_extensions:
   - admonition
@@ -93,6 +110,9 @@ nav:
   - Disclaimer: disclaimer.md
 
 extra:
+  generator: false
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/ohlcx
+    - icon: fontawesome/solid/globe
+      link: https://www.ohlcx.com

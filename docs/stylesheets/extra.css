@@ -1,0 +1,239 @@
+/*
+ * OHLCX brand — aligned with https://www.ohlcx.com
+ * Navy background, cyan accents, blue→cyan CTA gradient
+ */
+
+:root {
+  --ohlcx-navy: #05122b;
+  --ohlcx-navy-mid: #0a192f;
+  --ohlcx-navy-elevated: #0f2140;
+  --ohlcx-cyan: #48cae4;
+  --ohlcx-cyan-bright: #22d3ee;
+  --ohlcx-blue: #1864ab;
+  --ohlcx-teal: #15aabf;
+  --ohlcx-blue-cta: #2563eb;
+  --ohlcx-cyan-cta: #06b6d4;
+  --ohlcx-text: #e2e8f0;
+  --ohlcx-text-muted: #94a3b8;
+  --ohlcx-border: rgba(148, 163, 184, 0.18);
+}
+
+/* ── Dark (default — matches ohlcx.com marketing site) ── */
+/*
+ * Material naming (inverted on the header):
+ *   --md-primary-fg-color  → header / search field BACKGROUND
+ *   --md-primary-bg-color  → header TEXT, tab labels, search input text
+ */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: var(--ohlcx-navy);
+  --md-primary-fg-color--light: var(--ohlcx-navy-elevated);
+  --md-primary-fg-color--dark: #020810;
+  --md-primary-bg-color: var(--ohlcx-text);
+  --md-primary-bg-color--light: var(--ohlcx-text-muted);
+
+  --md-accent-fg-color: var(--ohlcx-cyan-bright);
+  --md-accent-bg-color: rgba(72, 202, 228, 0.12);
+
+  --md-default-bg-color: var(--ohlcx-navy);
+  --md-default-fg-color: var(--ohlcx-text);
+  --md-default-fg-color--light: var(--ohlcx-text-muted);
+  --md-default-fg-color--lighter: rgba(148, 163, 184, 0.55);
+  --md-default-fg-color--lightest: rgba(148, 163, 184, 0.25);
+
+  --md-code-bg-color: var(--ohlcx-navy-elevated);
+  --md-code-fg-color: var(--ohlcx-cyan-bright);
+
+  --md-typeset-a-color: var(--ohlcx-cyan-bright);
+  --md-typeset-mark-color: rgba(34, 211, 238, 0.35);
+
+  --md-typeset-table-color: var(--ohlcx-border);
+}
+
+[data-md-color-scheme="slate"] body,
+[data-md-color-scheme="slate"] .md-main {
+  background-color: var(--ohlcx-navy);
+  background-image:
+    linear-gradient(rgba(72, 202, 228, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(72, 202, 228, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+[data-md-color-scheme="slate"] .md-header {
+  background-color: var(--ohlcx-navy);
+  color: var(--ohlcx-text);
+  box-shadow: none;
+  border-bottom: 1px solid var(--ohlcx-border);
+}
+
+[data-md-color-scheme="slate"] .md-tabs {
+  background-color: var(--ohlcx-navy-mid);
+  border-bottom: 1px solid var(--ohlcx-border);
+}
+
+[data-md-color-scheme="slate"] .md-tabs__link {
+  color: var(--ohlcx-text-muted);
+  opacity: 1;
+}
+
+[data-md-color-scheme="slate"] .md-tabs__link--active,
+[data-md-color-scheme="slate"] .md-tabs__link:hover {
+  color: var(--ohlcx-cyan-bright);
+}
+
+[data-md-color-scheme="slate"] .md-header__button,
+[data-md-color-scheme="slate"] .md-header__title,
+[data-md-color-scheme="slate"] .md-header__topic {
+  color: var(--ohlcx-text);
+}
+
+[data-md-color-scheme="slate"] .md-search__input {
+  color: var(--ohlcx-text);
+  background-color: var(--ohlcx-navy-elevated);
+}
+
+[data-md-color-scheme="slate"] .md-search__input::placeholder {
+  color: var(--ohlcx-text-muted);
+  opacity: 1;
+}
+
+[data-md-color-scheme="slate"] .md-search__icon {
+  color: var(--ohlcx-text-muted);
+}
+
+[data-md-color-scheme="slate"] .md-source {
+  color: var(--ohlcx-text-muted);
+}
+
+[data-md-color-scheme="slate"] .md-source__icon svg {
+  fill: var(--ohlcx-text-muted);
+}
+
+[data-md-color-scheme="slate"] .md-sidebar {
+  background-color: transparent;
+}
+
+[data-md-color-scheme="slate"] .md-nav__link--active,
+[data-md-color-scheme="slate"] .md-nav__link:focus,
+[data-md-color-scheme="slate"] .md-nav__link:hover {
+  color: var(--ohlcx-cyan-bright);
+}
+
+[data-md-color-scheme="slate"] .md-footer {
+  background-color: var(--ohlcx-navy-mid);
+  border-top: 1px solid var(--ohlcx-border);
+}
+
+[data-md-color-scheme="slate"] .md-typeset h1 {
+  color: var(--ohlcx-cyan);
+}
+
+/* ── Light mode (readable docs; navy header band) ── */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: var(--ohlcx-navy);
+  --md-primary-fg-color--light: var(--ohlcx-navy-elevated);
+  --md-primary-fg-color--dark: #020810;
+  --md-primary-bg-color: var(--ohlcx-text);
+  --md-primary-bg-color--light: var(--ohlcx-text-muted);
+
+  --md-accent-fg-color: var(--ohlcx-cyan-cta);
+  --md-accent-bg-color: rgba(6, 182, 212, 0.1);
+
+  --md-default-bg-color: #f8fafc;
+  --md-default-fg-color: #0f172a;
+  --md-default-fg-color--light: #475569;
+
+  --md-typeset-a-color: var(--ohlcx-blue);
+  --md-typeset-mark-color: rgba(21, 170, 191, 0.25);
+}
+
+[data-md-color-scheme="default"] .md-header {
+  background: linear-gradient(90deg, var(--ohlcx-navy) 0%, var(--ohlcx-navy-mid) 100%);
+  color: var(--ohlcx-text);
+  box-shadow: none;
+  border-bottom: 1px solid var(--ohlcx-border);
+}
+
+[data-md-color-scheme="default"] .md-header__title,
+[data-md-color-scheme="default"] .md-header__button {
+  color: var(--ohlcx-text);
+}
+
+[data-md-color-scheme="default"] .md-tabs {
+  background-color: var(--ohlcx-navy-mid);
+}
+
+[data-md-color-scheme="default"] .md-tabs__link {
+  color: var(--ohlcx-text-muted);
+}
+
+[data-md-color-scheme="default"] .md-tabs__link--active,
+[data-md-color-scheme="default"] .md-tabs__link:hover {
+  color: var(--ohlcx-cyan-bright);
+}
+
+[data-md-color-scheme="default"] .md-search__input {
+  color: var(--ohlcx-text);
+  background-color: var(--ohlcx-navy-elevated);
+}
+
+[data-md-color-scheme="default"] .md-search__input::placeholder {
+  color: var(--ohlcx-text-muted);
+  opacity: 1;
+}
+
+[data-md-color-scheme="default"] .md-search__icon {
+  color: var(--ohlcx-text-muted);
+}
+
+[data-md-color-scheme="default"] .md-source {
+  color: var(--ohlcx-text-muted);
+}
+
+[data-md-color-scheme="default"] .md-typeset h1 {
+  color: var(--ohlcx-blue);
+}
+
+/* Header logo (Logo3 wordmark) */
+.md-header__button.md-logo {
+  padding: 0.2rem 0.4rem 0.2rem 0;
+}
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 2rem;
+  width: auto;
+  max-width: 10.5rem;
+}
+
+.md-header__title {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Admonitions — cyan accent */
+.md-typeset .admonition.note,
+.md-typeset details.note {
+  border-color: var(--ohlcx-teal);
+}
+
+.md-typeset .note > .admonition-title,
+.md-typeset .note > summary {
+  background-color: rgba(21, 170, 191, 0.12);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .note > .admonition-title,
+[data-md-color-scheme="slate"] .md-typeset .note > summary {
+  background-color: rgba(72, 202, 228, 0.1);
+}
+
+/* Primary buttons / links that use .md-button (if used) */
+.md-typeset .md-button--primary {
+  background: linear-gradient(90deg, var(--ohlcx-blue-cta) 0%, var(--ohlcx-cyan-cta) 100%);
+  border: none;
+  color: #fff;
+  border-radius: 9999px;
+}
+
+.md-footer-meta {
+  opacity: 0.92;
+}

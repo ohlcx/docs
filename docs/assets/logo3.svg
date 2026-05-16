@@ -1,0 +1,74 @@
+<svg width="300" height="64" viewBox="0 0 300 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!--
+      Exo 2 ExtraBold — clean, geometric, slightly angular; matches OHLCX style
+      Barlow Condensed 600 — compact subtitle to stay within OHLCX width
+    -->
+    <style type="text/css"><![CDATA[
+      @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@800&family=Barlow+Condensed:wght@600&display=swap');
+    ]]></style>
+
+    <!-- Blue gradient — Logo -->
+    <linearGradient id="blueGrad" x1="0" y1="1" x2="1" y2="0" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#15aabf" />
+      <stop offset="1" stop-color="#1864ab" />
+    </linearGradient>
+    <!-- Green gradient — bullish candles (1 & 3) -->
+    <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#1D951B" />
+      <stop offset="1" stop-color="#092F09" stop-opacity="0.9" />
+    </linearGradient>
+    <!-- Red gradient — bearish candle (2) -->
+    <linearGradient id="redGrad" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#D42A2A" />
+      <stop offset="1" stop-color="#6E1616" stop-opacity="0.9" />
+    </linearGradient>
+  </defs>
+
+  <!-- ── Candle 1 · Green / Bullish (small) ── -->
+  <rect x="9.69" y="16.07" width="0.64" height="11.04" fill="url(#greenGrad)" />
+  <rect x="4.56" y="27.11" width="10.89" height="14.29" fill="url(#greenGrad)" />
+  <rect x="9.69" y="41.40" width="0.64" height="18.85" fill="url(#greenGrad)" />
+
+  <!-- ── Candle 2 · Red / Bearish (medium) ── -->
+  <rect x="23.78" y="15.42" width="0.64" height="11.69" fill="url(#redGrad)" />
+  <rect x="18.66" y="27.11" width="10.89" height="30.52" fill="url(#redGrad)" />
+  <rect x="23.78" y="57.63" width="0.64" height="2.60" fill="url(#redGrad)" />
+
+  <line
+    x1="4"
+    y1="15.5"
+    x2="44"
+    y2="16"
+    stroke="#999"
+    stroke-opacity="0.7"
+    stroke-width="0.5"
+    stroke-dasharray="2 2"
+  />
+
+  <!-- ── Candle 3 · Green / Bullish (tall) ── -->
+  <rect x="34.03" y="3.72" width="11.53" height="54.58" fill="url(#greenGrad)" />
+
+  <!-- OHLCX™ -->
+  <text
+    x="56" y="43"
+    font-family="'Exo 2', 'Rajdhani', Impact, sans-serif"
+    font-size="48"
+    font-weight="800"
+    letter-spacing="1"
+    fill="url(#blueGrad)">OHLCX<tspan
+      font-size="14"
+      font-weight="400"
+      baseline-shift="super"
+      dy="-18"
+      dx="1">™</tspan></text>
+
+  <!-- Subtitle -->
+  <text
+    x="58" y="58"
+    font-family="'Barlow Condensed', 'Arial Narrow', sans-serif"
+    font-size="12.9"
+    font-weight="600"
+    fill="url(#blueGrad)"
+    letter-spacing="0.4">AUTOMATED TRADING</text>
+</svg>

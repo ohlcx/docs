@@ -49,14 +49,14 @@ In this app:
 │  routes/remote.php)         │          │  (api.schwabapi.com)        │
 │  + vendor/ohlcx/* routes    │          │  Accounts, orders,         │
 │  OHLCXApiService           │          │  instruments, chains,       │
-│  (proxy → ohlcx.online)     │          │  movers, history            │
+│  (proxy → ohlcx.com)        │          │  movers, history            │
 └─────────────────────────────┘          └─────────────────────────────┘
      │
      │ Bearer (OHLCX_API_TOKEN)
      ▼
 ┌─────────────────────────────┐
 │  External OHLCX API         │
-│  (www.ohlcx.online/api/)    │
+│  (www.ohlcx.com/api/)       │
 │  Strategies, conditions,   │
 │  signals, markets, tickers  │
 └─────────────────────────────┘
