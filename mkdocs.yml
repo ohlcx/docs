@@ -1,0 +1,98 @@
+site_name: OHLCX Developer Hub
+site_description: Public documentation for OHLCX — API, AI, MCP, architecture, and setup.
+site_url: https://ohlcx.github.io/docs/
+repo_url: https://github.com/ohlcx/docs
+repo_name: ohlcx/docs
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - content.code.copy
+    - content.action.edit
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Overview: getting-started/overview.md
+      - Requirements: getting-started/requirements.md
+      - Contributor access: getting-started/contributor-access.md
+  - Setup:
+      - OHLCX Pro: setup/ohlcx-pro.md
+      - OHLCX Light: setup/ohlcx-light.md
+      - trading-app install: setup/trading-app-install.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - Apps and packages: architecture/apps-and-packages.md
+      - Light vs Pro: architecture/light-vs-pro.md
+      - Data sources: architecture/data-sources.md
+      - System map: architecture/system-map.md
+      - Higher-level architecture: architecture/higher-level.md
+      - Contributing: architecture/contributing.md
+  - API:
+      - Reference: api/reference.md
+      - OpenAPI spec: api/openapi.yaml
+  - AI:
+      - Overview: ai/overview.md
+      - In-app assistant: ai/in-app-assistant.md
+      - Agents: ai/agents.md
+      - Cursor and Boost: ai/cursor-and-boost.md
+      - Testing: ai/testing.md
+  - MCP:
+      - Overview: mcp/overview.md
+      - Cursor setup: mcp/cursor-setup.md
+      - Tool catalog: mcp/tools/README.md
+  - Packages:
+      - Ecosystem: packages/README.md
+      - trading-app: packages/trading-app.md
+      - strategies: packages/strategies.md
+      - schwab-integration: packages/schwab-integration.md
+      - tdameritrade-laravel: packages/tdameritrade-laravel.md
+      - stripe-credits-billing: packages/stripe-credits-billing.md
+      - trading-rooms: packages/trading-rooms.md
+      - user-profile: packages/user-profile.md
+      - sectors: packages/sectors.md
+      - pricefeed: packages/pricefeed.md
+      - news: packages/news.md
+      - analysis: packages/analysis.md
+  - Disclaimer: disclaimer.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ohlcx

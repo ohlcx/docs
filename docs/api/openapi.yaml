@@ -1,0 +1,575 @@
+openapi: 3.0.3
+info:
+  title: OHLCX Laravel API
+  description: |
+    JSON API for the OHLCX trading app. Consumed by the React SPA under `/trading`.
+    Auth is cookie-based Sanctum; most endpoints require `auth:sanctum` and often `verified`.
+  version: 1.0.0
+
+servers:
+  - url: /
+    description: App root (prepend API base path in client, e.g. `/api`)
+
+tags:
+  - name: auth
+    description: Login, register, password reset, 2FA
+  - name: profile
+    description: User profile, sessions, delete account
+  - name: markets
+    description: Markets, tickers, calendar, market-balance (proxied to OHLCX API)
+  - name: strategies
+    description: Strategies CRUD and strategy actions (proxied + package)
+  - name: conditions
+    description: Conditions CRUD (proxied)
+  - name: signals
+    description: Signals (proxied)
+  - name: activities
+    description: User activities (TradingApp package)
+  - name: accounts
+    description: Account balances, growth, PnL (Schwab package)
+  - name: billing
+    description: Credits, transaction history, admin billing
+  - name: chat
+    description: Groups, invites, messages (TradingRooms package)
+  - name: support
+    description: Contact form, support request, report issue
+  - name: knowledge-base
+    description: Product/feature knowledge base articles (read-only)
+
+paths:
+  /api/user:
+    get:
+      tags: [auth]
+      summary: Current authenticated user
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: User object }
+        '401': { description: Unauthenticated }
+
+  /api/login:
+    post:
+      tags: [auth]
+      summary: Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200': { description: Success }
+        '422': { description: Validation error }
+
+  /api/register:
+    post:
+      tags: [auth]
+      summary: Register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '201': { description: Created }
+        '422': { description: Validation error }
+
+  /api/password/email:
+    post:
+      tags: [auth]
+      summary: Send password reset link
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200': { description: Link sent }
+        '422': { description: Validation error }
+
+  /api/password/reset:
+    post:
+      tags: [auth]
+      summary: Reset password with token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token: { type: string }
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200': { description: Password updated }
+        '422': { description: Validation error }
+
+  /api/two-factor-challenge:
+    post:
+      tags: [auth]
+      summary: Submit 2FA code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code: { type: string }
+      responses:
+        '200': { description: Success }
+        '401': { description: Invalid code }
+
+  /api/user-profile:
+    delete:
+      tags: [profile]
+      summary: Delete user account
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Optional payload (e.g. password confirmation)
+      responses:
+        '200': { description: Account deleted }
+        '401': { description: Unauthenticated }
+
+  /api/user-profile/profile:
+    put:
+      tags: [profile]
+      summary: Update profile details
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Updated }
+        '422': { description: Validation error }
+
+  /api/user-profile/sessions:
+    get:
+      tags: [profile]
+      summary: List sessions
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: List of sessions }
+
+  /api/user-profile/logout-other-sessions:
+    post:
+      tags: [profile]
+      summary: Logout other devices
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password: { type: string }
+      responses:
+        '200': { description: Success }
+
+  /api/knowledge-base:
+    get:
+      tags: [knowledge-base]
+      summary: List knowledge base articles
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: area
+          in: query
+          schema: { type: string }
+          description: Filter by area (e.g. dashboard, orders)
+        - name: q
+          in: query
+          schema: { type: string }
+          description: Search in title and content
+      responses:
+        '200':
+          description: List of articles (data array with id, slug, title, area, content, excerpt, route_path, component_reference, screenshot_filenames, meta, created_at, updated_at)
+        '401': { description: Unauthenticated }
+
+  /api/knowledge-base/{slug}:
+    get:
+      tags: [knowledge-base]
+      summary: Get single knowledge base article by slug
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Single article (data object)
+        '401': { description: Unauthenticated }
+        '404': { description: Article not found }
+
+  /api/markets:
+    get:
+      tags: [markets]
+      summary: List markets (proxied, cached)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: market_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { description: Market list or single market }
+        '500': { description: Proxy error }
+
+  /api/markets/{marketId}:
+    get:
+      tags: [markets]
+      summary: Single market (proxied, cached)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: marketId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Market data }
+        '500': { description: Proxy error }
+
+  /api/tickers:
+    get:
+      tags: [markets]
+      summary: Tickers (proxied, cached)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: market_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { description: Ticker list }
+        '500': { description: Proxy error }
+
+  /api/tickers/{symbol}:
+    get:
+      tags: [markets]
+      summary: Single ticker (proxied, cached)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Ticker data }
+        '500': { description: Proxy error }
+
+  /api/market-calendar:
+    get:
+      tags: [markets]
+      summary: Market calendar (proxied, cached)
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Calendar data }
+        '500': { description: Proxy error }
+
+  /api/market-balance:
+    post:
+      tags: [markets]
+      summary: Market balance (proxied, validated)
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filters: { type: object }
+      responses:
+        '200': { description: Balance data }
+        '422': { description: Validation error }
+        '500': { description: Proxy error }
+
+  /api/news:
+    get:
+      tags: [markets]
+      summary: News feed (proxied, cached)
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: News items }
+        '500': { description: Proxy error }
+  /api/popular-news:
+    get:
+      tags: [markets]
+      summary: Popular news (proxied, cached)
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: News items }
+        '500': { description: Proxy error }
+  /api/crypto-news:
+    get:
+      tags: [markets]
+      summary: Crypto news (proxied, cached)
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: News items }
+        '500': { description: Proxy error }
+
+  /api/analysis:
+    get:
+      tags: [markets]
+      summary: AI analysis (from TradingRooms messages + attachments)
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Analysis list }
+
+  /api/strategies:
+    get:
+      tags: [strategies]
+      summary: List strategies (proxied, cached)
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Strategy list }
+        '500': { description: Proxy error }
+    post:
+      tags: [strategies]
+      summary: Create strategy (proxied)
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201': { description: Created }
+        '500': { description: Proxy error }
+
+  /api/strategies/{id}:
+    get:
+      tags: [strategies]
+      summary: Get strategy (proxied)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Strategy }
+        '500': { description: Proxy error }
+    put:
+      tags: [strategies]
+      summary: Update strategy (proxied)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200': { description: Updated }
+        '500': { description: Proxy error }
+    delete:
+      tags: [strategies]
+      summary: Delete strategy (proxied)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Deleted }
+        '500': { description: Proxy error }
+
+  /api/strategy/{strategy}/conditions:
+    get:
+      tags: [strategies]
+      summary: Strategy conditions (proxied)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: strategy
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Conditions }
+        '500': { description: Proxy error }
+
+  /api/conditions:
+    get:
+      tags: [conditions]
+      summary: List conditions (proxied, cached)
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Condition list }
+        '500': { description: Proxy error }
+    post:
+      tags: [conditions]
+      summary: Create condition (proxied)
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201': { description: Created }
+        '500': { description: Proxy error }
+
+  /api/conditions/{id}:
+    get:
+      tags: [conditions]
+      summary: Get condition (proxied)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Condition }
+        '500': { description: Proxy error }
+    put:
+      tags: [conditions]
+      summary: Update condition (proxied)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200': { description: Updated }
+        '500': { description: Proxy error }
+    delete:
+      tags: [conditions]
+      summary: Delete condition (proxied)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Deleted }
+        '500': { description: Proxy error }
+
+  /api/signals:
+    get:
+      tags: [signals]
+      summary: List signals (proxied, cached)
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Signal list }
+        '500': { description: Proxy error }
+
+  /api/activities:
+    get:
+      tags: [activities]
+      summary: User activities
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Activity list }
+    post:
+      tags: [activities]
+      summary: Log activity
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200': { description: Logged }
+
+  /api/activities/{id}:
+    delete:
+      tags: [activities]
+      summary: Delete activity
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Deleted }
+
+  /api/accounts/balances:
+    get:
+      tags: [accounts]
+      summary: Account balances (Schwab package)
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Balances }
+
+  /api/accounts/{accountId}/growth:
+  /api/accounts/{accountId}/pnl:
+    get:
+      tags: [accounts]
+      summary: Account growth / PnL (Schwab package)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Data }
+
+  /api/credits:
+  /api/transaction-history:
+    get:
+      tags: [billing]
+      summary: Credits and transaction history
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Data }
+
+  /api/contact-form:
+    post:
+      tags: [support]
+      summary: Public contact form (CSRF exempt)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200': { description: Sent }
+        '422': { description: Validation error }
+
+  /api/support-request:
+  /api/report-issue:
+    post:
+      tags: [support]
+      summary: Support request / report issue
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200': { description: Sent }
+        '422': { description: Validation error }
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: laravel_session
+      description: Cookie-based Sanctum session; ensure credentials include and CSRF token for mutations
