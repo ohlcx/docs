@@ -23,12 +23,15 @@ This repository is **public documentation only**.
 ## Local preview
 
 ```bash
+cd docs
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 mkdocs serve
 ```
 
-## Org profile
+Open http://127.0.0.1:8000
 
-Push `github-org-profile/profile/README.md` from the workspace monorepo to [ohlcx/.github](https://github.com/ohlcx/.github) for the GitHub organization landing page.
+## Org profile (optional)
+
+Only if you have a GitHub **Organization** `ohlcx`: push `github-org-profile/profile/README.md` to [ohlcx/.github](https://github.com/ohlcx/.github). Personal accounts can skip this.
