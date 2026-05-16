@@ -2,7 +2,7 @@
 
 **Public documentation** for the OHLCX trading platform. Application and package **source code is private**; this repository is the open developer entry point.
 
-**Live site:** [https://ohlcx.github.io/docs/](https://ohlcx.github.io/docs/) (after GitHub Pages is enabled)
+**Live site:** [https://docs.ohlcx.com/](https://docs.ohlcx.com/)
 
 ## What is OHLCX?
 
@@ -103,3 +103,17 @@ The folder `github-org-profile/profile/README.md` in the monorepo is only for a 
 - **Free org:** You can create a GitHub Organization at no cost and still use `ohlcx/.github` if you want the `ohlcx` namespace for repos and the org profile.
 
 You do **not** need GitHub Enterprise or a paid plan for org profile READMEs or GitHub Pages on a public `docs` repo.
+
+## Custom domain
+
+The live site is **[https://docs.ohlcx.com](https://docs.ohlcx.com)**. `mkdocs.yml` sets `site_url` accordingly. Each deploy writes `site/CNAME` (`docs.ohlcx.com`) for GitHub Pages.
+
+**`site/sitemap.xml`** (and all of `site/`) is **generated** on `mkdocs build` / CI — do not edit or commit it. URLs come from `site_url` (e.g. `https://docs.ohlcx.com/...`, not `ohlcx.github.io`). Rebuild locally after changing `site_url`:
+
+```bash
+source .venv/bin/activate
+mkdocs build
+# inspect site/sitemap.xml
+```
+
+In the repo **Settings → Pages → Custom domain**, enter `docs.ohlcx.com` and enable HTTPS. DNS: `CNAME` record `docs` → `ohlcx.github.io` (or your Pages host shown in GitHub).

@@ -30,6 +30,9 @@ jobs:
       - name: Build site
         run: mkdocs build
 
+      - name: Add CNAME for custom domain
+        run: echo 'docs.ohlcx.com' > site/CNAME
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

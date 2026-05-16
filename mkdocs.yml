@@ -1,6 +1,6 @@
 site_name: OHLCX Developer Hub
 site_description: Public documentation for OHLCX — API, AI, MCP, architecture, and setup.
-site_url: https://ohlcx.github.io/docs/
+site_url: https://docs.ohlcx.com/
 repo_url: https://github.com/ohlcx/docs
 repo_name: ohlcx/docs
 edit_uri: edit/main/docs/
