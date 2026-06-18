@@ -1,0 +1,11 @@
+{% if config.extra.analytics %}
+  {% set provider = config.extra.analytics.provider %}
+{% endif %}
+
+{% if provider %}
+  {% include "partials/integrations/analytics/" ~ provider ~ ".html" %}
+{% endif %}
+
+{% if config.extra.analytics and config.extra.analytics.contentsquare %}
+  {% include "partials/integrations/analytics/contentsquare.html" %}
+{% endif %}

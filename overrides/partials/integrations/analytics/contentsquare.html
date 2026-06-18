@@ -1,0 +1,21 @@
+<script>
+  (function () {
+    var host = location.hostname;
+    if (host !== "docs.ohlcx.com") return;
+
+    function loadContentSquare() {
+      var s = document.createElement("script");
+      s.src = "{{ config.extra.analytics.contentsquare }}";
+      document.head.appendChild(s);
+    }
+
+    {% if config.extra.consent %}
+    document.addEventListener("DOMContentLoaded", function () {
+      if (__md_get("__consent") && __md_get("__consent").analytics)
+        loadContentSquare();
+    });
+    {% else %}
+    loadContentSquare();
+    {% endif %}
+  })();
+</script>

@@ -111,6 +111,18 @@ nav:
 
 extra:
   generator: false
+  analytics:
+    provider: google
+    property: G-F7NLKCWFXL
+    contentsquare: https://t.contentsquare.net/uxa/ad5be320c0b93.js
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to understand how documentation is used and improve it.
+    cookies:
+      analytics:
+        name: Google Analytics & ContentSquare
+        checked: false
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/ohlcx

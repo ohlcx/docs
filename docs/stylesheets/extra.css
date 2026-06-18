@@ -237,3 +237,83 @@
 .md-footer-meta {
   opacity: 0.92;
 }
+
+/* Cookie consent — button contrast on OHLCX navy (Material uses --md-primary-fg-color for
+   secondary .md-button text/border, which matches the modal background and disappears) */
+.md-consent__inner {
+  border-radius: 0.75rem;
+  border: 1px solid var(--ohlcx-border);
+}
+
+.md-consent__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.md-typeset .md-consent__controls .md-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.55em 1.75em;
+  font-weight: 600;
+  line-height: 1.3;
+  border-radius: 9999px;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color 125ms,
+    border-color 125ms,
+    color 125ms,
+    box-shadow 125ms;
+}
+
+.md-typeset .md-consent__controls .md-button--primary {
+  background: linear-gradient(90deg, var(--ohlcx-blue-cta) 0%, var(--ohlcx-cyan-cta) 100%);
+  border: none;
+  color: #fff;
+}
+
+.md-typeset .md-consent__controls .md-button--primary:hover,
+.md-typeset .md-consent__controls .md-button--primary:focus {
+  background: linear-gradient(90deg, var(--ohlcx-blue-cta) 0%, var(--ohlcx-cyan-bright) 100%);
+  border: none;
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.35);
+}
+
+.md-typeset .md-consent__controls label.md-button {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  color: var(--ohlcx-text);
+}
+
+.md-typeset .md-consent__controls label.md-button:hover,
+.md-typeset .md-consent__controls label.md-button:focus {
+  background: rgba(72, 202, 228, 0.12);
+  border-color: var(--ohlcx-cyan-bright);
+  color: var(--ohlcx-cyan-bright);
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.15);
+}
+
+[data-md-color-scheme="default"] .md-typeset .md-consent__controls label.md-button {
+  border-color: rgba(15, 23, 42, 0.22);
+  color: #0f172a;
+}
+
+[data-md-color-scheme="default"] .md-typeset .md-consent__controls label.md-button:hover,
+[data-md-color-scheme="default"] .md-typeset .md-consent__controls label.md-button:focus {
+  background: rgba(6, 182, 212, 0.1);
+  border-color: var(--ohlcx-cyan-cta);
+  color: var(--ohlcx-blue);
+}
+
+@media screen and (max-width: 44.984375em) {
+  .md-typeset .md-consent__controls .md-button {
+    display: flex;
+    width: 100%;
+    text-align: center;
+  }
+}

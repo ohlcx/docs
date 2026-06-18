@@ -71,6 +71,19 @@ mkdocs build
 
 Use a venv (as above) on macOS if `pip install` fails with an “externally managed environment” error.
 
+## Analytics (production only)
+
+The live site at **docs.ohlcx.com** uses the same public analytics stack as [ohlcx.com](https://www.ohlcx.com) and markets-web:
+
+| Service | ID / script |
+|---------|-------------|
+| **Google Analytics 4** | `G-F7NLKCWFXL` |
+| **ContentSquare** | `https://t.contentsquare.net/uxa/ad5be320c0b93.js` |
+
+Configured in `mkdocs.yml` under `extra.analytics`. MkDocs Material loads GA4 natively; ContentSquare is injected via `overrides/partials/integrations/analytics/`. A cookie consent banner (also in `mkdocs.yml`) defers both until the user accepts.
+
+**Local preview** (`mkdocs serve` on `127.0.0.1`) does **not** send analytics — scripts only run when `location.hostname` is `docs.ohlcx.com`.
+
 ## Regenerating docs from private source
 
 Maintainers with the private monorepo sync allowlisted files from **`ohlcx/trading-app`** (not from `ohlcx` or `ohlcx-light` app repos):
