@@ -12,7 +12,7 @@
 | Stdio | `php artisan mcp:start ohlcx` |
 | Auth | Sanctum (web); stdio may run unauthenticated. |
 
-OHLCX MCP server: trading platform tools for strategies, backtests, signals, trades, workspaces, markets, sectors, news, conditions, knowledge base, and user management.
+OHLCX MCP server: trading platform tools for strategies, backtests, signals, trades, workspaces, watchlists, screeners, markets, sectors, news, conditions, knowledge base, and user management.
 
 ## Prompts (3)
 
@@ -28,9 +28,9 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 |------|-----|-------------|
 | `strategy-settings` | `ohlcx://strategy-settings` | Every strategy setting by section, with its allowed values |
 
-## Tools (117)
+## Tools (128)
 
-### User and guest tools (104)
+### User and guest tools (115)
 
 | Tool | Notes |
 |------|-------|
@@ -91,6 +91,12 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 | `get-signal-actions` | Get how the authenticated user has marked a signal: liked, ignored, watched. |
 | `get-workspaces` | The user's Workspaces document and its revision. |
 | `save-workspaces` | Replace the Workspaces document against a revision; a stale revision returns the current state. |
+| `list-watchlists` | The user's watchlists, the built-in ones, and the hidden built-ins. |
+| `create-watchlist` | Create an empty watchlist for the authenticated user. Add symbols with add-watchlist-symbols. |
+| `rename-watchlist` | Rename one of the authenticated user's watchlists. |
+| `delete-watchlist` | Delete one of the authenticated user's watchlists and the symbols in it. This cannot be undone. |
+| `add-watchlist-symbols` | Add one or more symbols to one of the authenticated user's watchlists. Symbols already in it are kept once. |
+| `remove-watchlist-symbol` | Remove one symbol from one of the authenticated user's watchlists. |
 | `list-markets` | Markets; optional market_id. |
 | `list-sectors` | Sectors from proxied API; optional per_page. |
 | `get-sector` | Sector by sector_id. |
@@ -98,6 +104,11 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 | `get-market-calendar` | Market calendar. |
 | `get-market-balance` | Market balance; optional filters. |
 | `get-sector-balance` | Sector balance; optional filters. |
+| `screen-market-gaps` | Gap screen of a market; optional market_id, gap_min_percent, direction. |
+| `screen-asset-gaps` | Gap screen of one symbol; optional timeframe, gap_min_percent, direction. |
+| `screen-technicals` | Technical readings per symbol for a market; optional market_id, timeframe, search, page, per_page. |
+| `get-ticker-bars` | Price bars for a symbol; newest 200 by default, cursor paginated. |
+| `get-ticker-analysis` | Published analysis for one symbol; optional page. |
 | `list-news` | Paginated news. |
 | `get-news` | News item by id. |
 | `list-crypto-news` | Paginated crypto news. |

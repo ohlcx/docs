@@ -1,6 +1,6 @@
 # MCP overview
 
-The **OHLCX MCP server** (version 1.1.0) exposes tools, prompts and a resource for the trading platform: strategies, backtests, signals, trades, Workspaces, markets, sectors, news, conditions, knowledge base, messaging, billing, and user administration.
+The **OHLCX MCP server** (version 1.1.0) exposes tools, prompts and a resource for the trading platform: strategies, backtests, signals, trades, Workspaces, watchlists, screeners, price bars, markets, sectors, news, conditions, knowledge base, messaging, billing, and user administration.
 
 Implementation lives in the private **`ohlcx/trading-app`** package (`OHLCX\TradingApp\Mcp`).
 
@@ -36,12 +36,17 @@ Implementation lives in the private **`ohlcx/trading-app`** package (`OHLCX\Trad
 | Trades | `list-trades`, `get-trade`, `delete-trade` |
 | Signals | `get-signal`, `delete-signal`, `set-signal-action`, `get-signal-actions` |
 | Workspaces | `get-workspaces`, `save-workspaces` |
+| Watchlists | `list-watchlists`, `create-watchlist`, `rename-watchlist`, `delete-watchlist`, `add-watchlist-symbols`, `remove-watchlist-symbol` |
+| Screener | `screen-market-gaps`, `screen-asset-gaps`, `screen-technicals` |
+| Market data | `get-ticker-bars`, `get-ticker-analysis` |
 
 Notes:
 
 - **Server-side backtests** are listed only when the app has server backtests switched on (`TRADING_APP_BACKTEST_SERVER_RUNS`). A run finishes as a saved backtest (read it with `get-backtest`); a sweep finishes with its ranked results on the job.
 - **`get-backtest`** returns the run's metrics and settings. The trade list, equity curve and strategy snapshot are large, so ask for them with `include`.
 - **`save-workspaces`** sends the whole document with the `revision` read from `get-workspaces`. If the Workspaces changed somewhere else in the meantime, nothing is saved and the current state and revision come back to merge into.
+- **`get-ticker-bars`** returns the most recent 200 bars unless `limit` (up to 1000), `from`, `to` or `order` say otherwise. Follow `meta.next_cursor` for more.
+- **Watchlist tools** act on the signed-in user's own watchlists. Built-in watchlists are listed but not changed.
 - **`get-user`** is now available to every signed-in user for their own account. Only admins may pass `user_id`.
 
 ## Safety
