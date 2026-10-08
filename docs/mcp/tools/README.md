@@ -7,12 +7,12 @@
 | Field | Value |
 |-------|-------|
 | Name | OHLCX |
-| Version | 1.0.0 |
+| Version | 1.1.0 |
 | Web transport | `/mcp/ohlcx` |
 | Stdio | `php artisan mcp:start ohlcx` |
 | Auth | Sanctum (web); stdio may run unauthenticated. |
 
-OHLCX MCP server: trading platform tools for strategies, signals, markets, sectors, news, conditions, knowledge base, and user management.
+OHLCX MCP server: trading platform tools for strategies, backtests, signals, trades, workspaces, watchlists, screeners, accounts and orders (read-only), support tickets, markets, sectors, news, conditions, knowledge base, and user management.
 
 ## Prompts (3)
 
@@ -22,25 +22,39 @@ OHLCX MCP server: trading platform tools for strategies, signals, markets, secto
 | `trading-terminology` | TSP, OCO, TRIM, order types |
 | `support-knowledge-base` | Answer support questions using KB |
 
-## Tools (86)
+## Resources (1)
 
-### User and guest tools (72)
+| Name | URI | Description |
+|------|-----|-------------|
+| `strategy-settings` | `ohlcx://strategy-settings` | Every strategy setting by section, with its allowed values |
+
+## Tools (144)
+
+### User and guest tools (131)
 
 | Tool | Notes |
 |------|-------|
 | `ping` | Health check; no args. |
 | `run-support-agent` | Laravel AI support agent (KB tools only); triggers LLM. |
 | `run-trading-agent` | Laravel AI trading assistant; authenticated MCP only; triggers LLM. |
+| `get-user` | Current user; admins may pass user_id for another user. |
 | `search-knowledge-base` | Filter by area, q; uses DB. Available to all. |
 | `get-knowledge-base-article` | Article by slug; uses DB. Available to all. |
 | `list-accounts` | User's brokerage accounts. |
 | `get-account-balance` | Account balance by account_id. |
 | `get-account-growth` | Account growth by account_id. |
 | `get-account-pnl` | Account PnL by account_id. |
+| `get-accounts-balances` | Daily balance history of every linked account, keyed by account ID; optional days (default 30). |
+| `get-account-pnl-history` | Realized P&L over time for an account; optional period or from/to. |
+| `get-account-pnl-symbols` | Realized P&L by symbol for an account; optional period or from/to, symbol, underlying. |
+| `list-account-cash-transfers` | Deposits and withdrawals of an account; optional period or from/to, direction, q, page, per_page. |
+| `list-orders` | Broker orders between two dates; optional account_id, status, max_results. Read-only. |
+| `get-order` | One broker order by account_id and order_id. Read-only. |
 | `list-activities` | User's activity feed. |
 | `log-activity` | Log activity. |
 | `delete-activity` | Delete activity by id. |
 | `get-analysis` | User's AI analysis data. |
+| `get-ai-usage` | The user's AI usage by agent and source; optional range or from/to. |
 | `list-strategies` | User's strategies. |
 | `get-strategy` | Strategy by id. |
 | `create-strategy` | Create strategy. |
@@ -52,7 +66,44 @@ OHLCX MCP server: trading platform tools for strategies, signals, markets, secto
 | `deploy-strategy` | Deploy strategy. |
 | `duplicate-strategy` | Duplicate strategy. |
 | `clear-strategy-conditions-readings` | Clear condition readings for strategy. |
+| `get-strategy-statistics` | One strategy's statistics; optional period, status, direction. |
+| `get-strategies-statistics` | Statistics across all the user's strategies; optional period, status, direction. |
+| `get-strategy-performance` | One strategy's performance; optional period, status, direction. |
+| `get-strategies-performance` | Performance across all the user's strategies; optional period, status, direction. |
+| `get-strategy-timeline` | Get a strategy's activity timeline: what it did, day by day, over the last days. |
+| `list-strategy-signals` | List the signals a strategy has raised, 100 per page. |
+| `list-strategy-trades` | List the trades a strategy has taken, 100 per page. |
+| `get-strategy-flags` | List the flags a strategy's conditions have raised, 100 per page. |
+| `set-strategy-status` | Switch a strategy on or off (owner only). |
+| `set-strategy-flag` | signals, trades or orders (or their notifications): on, off, toggle (owner only). |
+| `set-strategy-schedule` | Set the days and hours a strategy is allowed to run. Times are New York time. |
+| `update-strategy-settings` | One validated section at a time; see the ohlcx://strategy-settings resource (owner only). |
+| `clear-strategy-data` | Delete a strategy's signals, trades or flags (owner only). |
 | `list-signals` | User's signals. |
+| `list-backtests` | Saved runs, newest first; optional strategy_id, page. |
+| `get-backtest` | One saved run; trades, equity and strategy_snapshot only when named in include. |
+| `rename-backtest` | Rename a saved backtest run. |
+| `delete-backtest` | Delete a saved backtest run. This cannot be undone. |
+| `run-backtest` | Server-side run; listed only when server backtests are switched on. |
+| `run-backtest-sweep` | Server-side sweep over one or two settings; listed only when server backtests are switched on. |
+| `list-backtest-jobs` | Server-side jobs with status and progress; listed only when server backtests are switched on. |
+| `get-backtest-job` | Poll a server-side job; listed only when server backtests are switched on. |
+| `cancel-backtest-job` | Cancel a waiting or running job; listed only when server backtests are switched on. |
+| `list-trades` | Strategy trades; optional symbol, period, status, direction, page. |
+| `get-trade` | Get one strategy trade by ID. |
+| `delete-trade` | Delete a trade record; does not touch the broker. |
+| `get-signal` | Get one signal by ID, with its strategy and trades. |
+| `delete-signal` | Delete a signal. This cannot be undone. |
+| `set-signal-action` | like, unlike, ignore, unignore, watch or unwatch a signal. |
+| `get-signal-actions` | Get how the authenticated user has marked a signal: liked, ignored, watched. |
+| `get-workspaces` | The user's Workspaces document and its revision. |
+| `save-workspaces` | Replace the Workspaces document against a revision; a stale revision returns the current state. |
+| `list-watchlists` | The user's watchlists, the built-in ones, and the hidden built-ins. |
+| `create-watchlist` | Create an empty watchlist for the authenticated user. Add symbols with add-watchlist-symbols. |
+| `rename-watchlist` | Rename one of the authenticated user's watchlists. |
+| `delete-watchlist` | Delete one of the authenticated user's watchlists and the symbols in it. This cannot be undone. |
+| `add-watchlist-symbols` | Add one or more symbols to one of the authenticated user's watchlists. Symbols already in it are kept once. |
+| `remove-watchlist-symbol` | Remove one symbol from one of the authenticated user's watchlists. |
 | `list-markets` | Markets; optional market_id. |
 | `list-sectors` | Sectors from proxied API; optional per_page. |
 | `get-sector` | Sector by sector_id. |
@@ -60,6 +111,11 @@ OHLCX MCP server: trading platform tools for strategies, signals, markets, secto
 | `get-market-calendar` | Market calendar. |
 | `get-market-balance` | Market balance; optional filters. |
 | `get-sector-balance` | Sector balance; optional filters. |
+| `screen-market-gaps` | Gap screen of a market; optional market_id, gap_min_percent, direction. |
+| `screen-asset-gaps` | Gap screen of one symbol; optional timeframe, gap_min_percent, direction. |
+| `screen-technicals` | Technical readings per symbol for a market; optional market_id, timeframe, search, page, per_page. |
+| `get-ticker-bars` | Price bars for a symbol; newest 200 by default, cursor paginated. |
+| `get-ticker-analysis` | Published analysis for one symbol; optional page. |
 | `list-news` | Paginated news. |
 | `get-news` | News item by id. |
 | `list-crypto-news` | Paginated crypto news. |
@@ -72,8 +128,13 @@ OHLCX MCP server: trading platform tools for strategies, signals, markets, secto
 | `submit-contact-form` | Submit contact form. |
 | `report-issue` | Report issue. |
 | `submit-support-request` | Submit support request. |
+| `list-support-tickets` | The user's support tickets; optional status. |
+| `get-support-ticket` | Get one of the authenticated user's support tickets with its messages. |
+| `create-support-ticket` | Open a support ticket: subject, body, optional category and priority. |
+| `reply-support-ticket` | Add a message from the authenticated user to one of their support tickets. The support team is notified. Confirm the wording with the user first. |
 | `get-credits` | User's credit balance. |
 | `get-transaction-history` | User's billing history. |
+| `list-credit-holds` | Credit holds and their status; optional page, per_page. Read-only. |
 | `get-sessions` | User's sessions. |
 | `update-profile` | Update profile. |
 | `update-password` | Update password. |
@@ -92,20 +153,23 @@ OHLCX MCP server: trading platform tools for strategies, signals, markets, secto
 | `join-group` | Join group. |
 | `leave-group` | Leave group. |
 | `get-group-status` | Group status. |
+| `discover-groups` | Trading rooms open to join; optional search. |
+| `browse-users` | Other users to message or invite; optional search. |
 | `list-invites` | User's invites. |
 | `send-invite` | Send invite. |
 | `accept-invite` | Accept invite. |
 | `respond-join-request` | Respond to join request. |
+| `list-pending-join-requests` | Join requests waiting on rooms the user owns. |
 | `send-message` | Send message in room. |
 | `get-older-messages` | Older messages before message_id. |
 | `delete-message` | Delete message. |
 | `get-sidebar-conversations` | Sidebar conversation list. |
+| `get-unread-messages` | Unread messages by conversation. |
 
-### Admin-only tools (14)
+### Admin-only tools (13)
 
 | Tool | Notes |
 |------|-------|
-| `get-user` | Current user or optional user_id for another user. |
 | `list-users` | Search, pagination. |
 | `set-user-admin` | Set/clear is_admin. |
 | `update-user` | Update name, email, is_admin, email_verified. |
