@@ -12,7 +12,7 @@
 | Stdio | `php artisan mcp:start ohlcx` |
 | Auth | Sanctum (web); stdio may run unauthenticated. |
 
-OHLCX MCP server: trading platform tools for strategies, backtests, signals, trades, workspaces, watchlists, screeners, markets, sectors, news, conditions, knowledge base, and user management.
+OHLCX MCP server: trading platform tools for strategies, backtests, signals, trades, workspaces, watchlists, screeners, accounts and orders (read-only), support tickets, markets, sectors, news, conditions, knowledge base, and user management.
 
 ## Prompts (3)
 
@@ -28,9 +28,9 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 |------|-----|-------------|
 | `strategy-settings` | `ohlcx://strategy-settings` | Every strategy setting by section, with its allowed values |
 
-## Tools (128)
+## Tools (144)
 
-### User and guest tools (115)
+### User and guest tools (131)
 
 | Tool | Notes |
 |------|-------|
@@ -44,10 +44,17 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 | `get-account-balance` | Account balance by account_id. |
 | `get-account-growth` | Account growth by account_id. |
 | `get-account-pnl` | Account PnL by account_id. |
+| `get-accounts-balances` | Daily balance history of every linked account, keyed by account ID; optional days (default 30). |
+| `get-account-pnl-history` | Realized P&L over time for an account; optional period or from/to. |
+| `get-account-pnl-symbols` | Realized P&L by symbol for an account; optional period or from/to, symbol, underlying. |
+| `list-account-cash-transfers` | Deposits and withdrawals of an account; optional period or from/to, direction, q, page, per_page. |
+| `list-orders` | Broker orders between two dates; optional account_id, status, max_results. Read-only. |
+| `get-order` | One broker order by account_id and order_id. Read-only. |
 | `list-activities` | User's activity feed. |
 | `log-activity` | Log activity. |
 | `delete-activity` | Delete activity by id. |
 | `get-analysis` | User's AI analysis data. |
+| `get-ai-usage` | The user's AI usage by agent and source; optional range or from/to. |
 | `list-strategies` | User's strategies. |
 | `get-strategy` | Strategy by id. |
 | `create-strategy` | Create strategy. |
@@ -121,8 +128,13 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 | `submit-contact-form` | Submit contact form. |
 | `report-issue` | Report issue. |
 | `submit-support-request` | Submit support request. |
+| `list-support-tickets` | The user's support tickets; optional status. |
+| `get-support-ticket` | Get one of the authenticated user's support tickets with its messages. |
+| `create-support-ticket` | Open a support ticket: subject, body, optional category and priority. |
+| `reply-support-ticket` | Add a message from the authenticated user to one of their support tickets. The support team is notified. Confirm the wording with the user first. |
 | `get-credits` | User's credit balance. |
 | `get-transaction-history` | User's billing history. |
+| `list-credit-holds` | Credit holds and their status; optional page, per_page. Read-only. |
 | `get-sessions` | User's sessions. |
 | `update-profile` | Update profile. |
 | `update-password` | Update password. |
@@ -141,14 +153,18 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 | `join-group` | Join group. |
 | `leave-group` | Leave group. |
 | `get-group-status` | Group status. |
+| `discover-groups` | Trading rooms open to join; optional search. |
+| `browse-users` | Other users to message or invite; optional search. |
 | `list-invites` | User's invites. |
 | `send-invite` | Send invite. |
 | `accept-invite` | Accept invite. |
 | `respond-join-request` | Respond to join request. |
+| `list-pending-join-requests` | Join requests waiting on rooms the user owns. |
 | `send-message` | Send message in room. |
 | `get-older-messages` | Older messages before message_id. |
 | `delete-message` | Delete message. |
 | `get-sidebar-conversations` | Sidebar conversation list. |
+| `get-unread-messages` | Unread messages by conversation. |
 
 ### Admin-only tools (13)
 
