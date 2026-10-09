@@ -52,61 +52,93 @@ Two packages of the organization are not required by Pro or Light and are not pa
 
 ## Dependencies
 
-Each arrow is a `require` in the package's own `composer.json`. An arrow points from a package to the package it requires.
+The packages require each other in 23 places. Each one is a `require` in a package's own `composer.json`. The two diagrams and the note between them show all 23: 9 in the first diagram, 5 in the note, 9 in the second diagram. An arrow points from a package to the package it requires. Each diagram reads left to right and grows downward, so it stays readable on a narrow screen.
+
+### Shared packages: who requires whom
+
+The 13 packages both editions install. 9 requirements are drawn.
 
 ```mermaid
-flowchart TB
-  subgraph both[Pro and Light]
-    ta[trading-app]
-    schwab[schwab-integration]
-    td[tdameritrade-laravel]
-    billing[stripe-credits-billing]
-    rooms[trading-rooms]
-    profile[user-profile]
-    goals
-    mail[mail-kit]
-    license[node-license-client]
-    booking
-    referrals
-    bots[chat-bots]
-    pulse
-  end
-  subgraph proonly[Pro only]
-    strategies
-    pricefeed
-    alpaca[alpaca-trade-api-php]
-    dev[development-features]
-    nodes[node-management]
-    sectors
-    news
-    analysis
-  end
-  ta --> license
-  ta --> td
+flowchart LR
+  classDef shared fill:#0e7490,stroke:#67e8f9,color:#ffffff,stroke-width:1px;
+  ta[trading-app]:::shared
+  schwab[schwab-integration]:::shared
+  rooms[trading-rooms]:::shared
+  bots[chat-bots]:::shared
+  td[tdameritrade-laravel]:::shared
+  billing[stripe-credits-billing]:::shared
+  profile[user-profile]:::shared
+  goals[goals]:::shared
+  license[node-license-client]:::shared
   ta --> schwab
+  ta --> rooms
+  ta --> td
   ta --> billing
   ta --> profile
-  ta --> rooms
   ta --> goals
-  ta --> mail
+  ta --> license
   schwab --> td
-  schwab --> mail
-  rooms --> mail
-  booking --> mail
-  referrals --> mail
   bots --> rooms
-  strategies --> alpaca
-  strategies --> td
-  strategies --> schwab
+```
+
+Not drawn, to keep the picture readable: **mail-kit** is required by trading-app, schwab-integration, trading-rooms, booking and referrals (5 requirements). booking and referrals require nothing else. **pulse** requires no other package and none requires it.
+
+### Pro-only packages and what they build on
+
+The 8 packages only OHLCX Pro installs, in blue, with the shared packages they require, in teal. 9 requirements are drawn. sectors, news and analysis require no other package.
+
+```mermaid
+flowchart LR
+  classDef shared fill:#0e7490,stroke:#67e8f9,color:#ffffff,stroke-width:1px;
+  classDef pro fill:#1d4ed8,stroke:#93c5fd,color:#ffffff,stroke-width:1px;
+  strategies[strategies]:::pro
+  dev[development-features]:::pro
+  nodes[node-management]:::pro
+  pricefeed[pricefeed]:::pro
+  alpaca[alpaca-trade-api-php]:::pro
+  schwab[schwab-integration]:::shared
+  td[tdameritrade-laravel]:::shared
+  mail[mail-kit]:::shared
   strategies --> pricefeed
+  strategies --> alpaca
+  strategies --> schwab
+  strategies --> td
   strategies --> mail
   dev --> alpaca
-  dev --> td
   dev --> schwab
+  dev --> td
   nodes --> mail
 ```
 
-Packages without an arrow require no other `ohlcx/*` package. Some name others as optional (`suggest`) and work with them when the application installs them:
+### The same as a table
+
+| Package | Edition | Requires | Required by |
+|---------|---------|----------|-------------|
+| trading-app | Pro, Light | node-license-client, tdameritrade-laravel, schwab-integration, stripe-credits-billing, user-profile, trading-rooms, goals, mail-kit | none |
+| schwab-integration | Pro, Light | tdameritrade-laravel, mail-kit | trading-app, strategies, development-features |
+| tdameritrade-laravel | Pro, Light | none | trading-app, schwab-integration, strategies, development-features |
+| stripe-credits-billing | Pro, Light | none | trading-app |
+| trading-rooms | Pro, Light | mail-kit | trading-app, chat-bots |
+| user-profile | Pro, Light | none | trading-app |
+| goals | Pro, Light | none | trading-app |
+| mail-kit | Pro, Light | none | trading-app, schwab-integration, trading-rooms, booking, referrals, strategies, node-management |
+| booking | Pro, Light | mail-kit | none |
+| referrals | Pro, Light | mail-kit | none |
+| pulse | Pro, Light | none | none |
+| node-license-client | Pro, Light | none | trading-app |
+| chat-bots | Pro, Light | trading-rooms | none |
+| strategies | Pro | alpaca-trade-api-php, tdameritrade-laravel, schwab-integration, pricefeed, mail-kit | none |
+| pricefeed | Pro | none | strategies |
+| sectors | Pro | none | none |
+| news | Pro | none | none |
+| analysis | Pro | none | none |
+| alpaca-trade-api-php | Pro | none | strategies, development-features |
+| development-features | Pro | alpaca-trade-api-php, tdameritrade-laravel, schwab-integration | none |
+| node-management | Pro | mail-kit | none |
+
+### Optional packages
+
+Some packages name others as optional (`suggest`) and work with them when the application installs them:
 
 | Package | Suggests |
 |---------|----------|
