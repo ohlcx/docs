@@ -93,7 +93,13 @@ nav:
   - MCP:
       - Overview: mcp/overview.md
       - Cursor setup: mcp/cursor-setup.md
-      - Tool catalog: mcp/tools/README.md
+      - Accounts and identifiers: mcp/accounts.md
+      - Strategies and order routing: mcp/strategy-routing.md
+      - Errors and refusals: mcp/errors.md
+      - Limits and paging: mcp/limits-and-paging.md
+      - Tool reference: mcp/tools/reference.md
+      - Tool catalog (generated list): mcp/tools/README.md
+      - Changes: mcp/changes.md
   - Packages:
       - Ecosystem: packages/README.md
       - trading-app: packages/trading-app.md

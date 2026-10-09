@@ -25,7 +25,7 @@ Slimmer deployment: trading UI, Schwab integration, credits billing, trading roo
 |---------|----------|-------------|
 | **REST API** | Integrators, SPA | Cookie-based Sanctum API at `/api/*`; see [API reference](../api/reference.md) |
 | **In-app AI** | End users, QA | Drawer assistant with Support / Trading / Assistant modes |
-| **MCP** | IDE agents (Cursor, etc.) | 80+ tools via `/mcp/ohlcx` or `php artisan mcp:start ohlcx` |
+| **MCP** | AI clients (Claude, Cursor, etc.) | 147 tools via `/mcp/ohlcx` or `php artisan mcp:start ohlcx`; see [MCP overview](../mcp/overview.md) |
 | **OpenAPI** | Contract consumers | [openapi.yaml](../api/openapi.yaml) |
 
 ## Documentation map

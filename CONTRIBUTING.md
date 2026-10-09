@@ -11,8 +11,14 @@ This repository is **public documentation only**.
 ./scripts/sync-public-docs.sh /path/to/ohlcx/docs
 ```
 
-3. Review diff, fix any hand-edited pages if needed (`architecture/contributing.md` is not auto-overwritten).
-4. Open PR on `ohlcx/docs`.
+3. Rebuild the MCP tool reference (add a summary to `scripts/mcp_tool_areas.json` for any new tool first):
+
+```bash
+python3 scripts/build_mcp_reference.py /path/to/trading-app/src/Mcp
+```
+
+4. Review diff, fix any hand-edited pages if needed (`architecture/contributing.md` is not auto-overwritten; the pages under `docs/mcp/` other than `tools/README.md`, `tools/index.json` and `tools/reference.md` are written by hand).
+5. Open PR on `ohlcx/docs`.
 
 ## External contributors
 
