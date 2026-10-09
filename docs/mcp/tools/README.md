@@ -28,9 +28,9 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 |------|-----|-------------|
 | `strategy-settings` | `ohlcx://strategy-settings` | Every strategy setting by section, with its allowed values |
 
-## Tools (144)
+## Tools (147)
 
-### User and guest tools (131)
+### User and guest tools (134)
 
 | Tool | Notes |
 |------|-------|
@@ -40,11 +40,13 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 | `get-user` | Current user; admins may pass user_id for another user. |
 | `search-knowledge-base` | Filter by area, q; uses DB. Available to all. |
 | `get-knowledge-base-article` | Article by slug; uses DB. Available to all. |
-| `list-accounts` | User's brokerage accounts. |
-| `get-account-balance` | Account balance by account_id. |
+| `list-accounts` | User's brokerage accounts: id, masked number, type, balances; never the broker's key or a full number. |
+| `list-strategy-accounts` | Linked accounts as strategies can route orders to them: id, masked label, routable or the reason not. Pro only. Read-only. |
+| `set-strategy-accounts` | Choose which linked accounts receive a strategy's orders (selected ids, or all). Pro only. Decides where orders go: confirm first. |
+| `get-account-balance` | Daily balance history of one account: its id, masked number and history; never the broker's key. |
 | `get-account-growth` | Account growth by account_id. |
 | `get-account-pnl` | Account PnL by account_id. |
-| `get-accounts-balances` | Daily balance history of every linked account, keyed by account ID; optional days (default 30). |
+| `get-accounts-balances` | Daily balance history of every linked account, one entry per account with its id and masked number; optional days (default 30). |
 | `get-account-pnl-history` | Realized P&L over time for an account; optional period or from/to. |
 | `get-account-pnl-symbols` | Realized P&L by symbol for an account; optional period or from/to, symbol, underlying. |
 | `list-account-cash-transfers` | Deposits and withdrawals of an account; optional period or from/to, direction, q, page, per_page. |
@@ -55,17 +57,18 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 | `delete-activity` | Delete activity by id. |
 | `get-analysis` | User's AI analysis data. |
 | `get-ai-usage` | The user's AI usage by agent and source; optional range or from/to. |
-| `list-strategies` | User's strategies. |
+| `list-strategies` | User's strategies; optional page and per_page ask for the paged list. |
 | `get-strategy` | Strategy by id. |
 | `create-strategy` | Create strategy. |
-| `update-strategy` | Update strategy by id. |
-| `delete-strategy` | Delete strategy by id. |
+| `update-strategy` | Update strategy by id. Refused while deployed: retain-strategy first. |
+| `delete-strategy` | Delete strategy by id. Refused while deployed: retain-strategy first. |
 | `search-strategies` | Search strategies by symbol. |
 | `get-strategy-activities` | Strategy activities by strategy_id. |
 | `get-strategy-conditions` | Strategy conditions by strategy_id. |
 | `deploy-strategy` | Deploy strategy. |
+| `retain-strategy` | Retain a strategy (take it out of evaluation); stop true also switches orders, trades and signals off (owner only). |
 | `duplicate-strategy` | Duplicate strategy. |
-| `clear-strategy-conditions-readings` | Clear condition readings for strategy. |
+| `clear-strategy-conditions-readings` | Clear condition readings for strategy. Refused while deployed: retain-strategy first. |
 | `get-strategy-statistics` | One strategy's statistics; optional period, status, direction. |
 | `get-strategies-statistics` | Statistics across all the user's strategies; optional period, status, direction. |
 | `get-strategy-performance` | One strategy's performance; optional period, status, direction. |
@@ -74,11 +77,11 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 | `list-strategy-signals` | List the signals a strategy has raised, 100 per page. |
 | `list-strategy-trades` | List the trades a strategy has taken, 100 per page. |
 | `get-strategy-flags` | List the flags a strategy's conditions have raised, 100 per page. |
-| `set-strategy-status` | Switch a strategy on or off (owner only). |
-| `set-strategy-flag` | signals, trades or orders (or their notifications): on, off, toggle (owner only). |
-| `set-strategy-schedule` | Set the days and hours a strategy is allowed to run. Times are New York time. |
-| `update-strategy-settings` | One validated section at a time; see the ohlcx://strategy-settings resource (owner only). |
-| `clear-strategy-data` | Delete a strategy's signals, trades or flags (owner only). |
+| `set-strategy-status` | Switch a strategy on or off (owner only). On is refused while deployed (retain-strategy first); off always works. |
+| `set-strategy-flag` | signals, trades or orders (or their notifications): on, off, toggle (owner only). On and toggle are refused while deployed (retain-strategy first); off always works. |
+| `set-strategy-schedule` | Set the days and hours a strategy is allowed to run. Times are New York time. Refused while deployed: retain-strategy first. |
+| `update-strategy-settings` | One validated section at a time; see the ohlcx://strategy-settings resource (owner only). Refused while deployed: retain-strategy first. |
+| `clear-strategy-data` | Delete a strategy's signals, trades or flags (owner only). Clearing flags is refused while deployed, and signals while deployed, real and with orders on (retain-strategy first); trades never. |
 | `list-signals` | User's signals. |
 | `list-backtests` | Saved runs, newest first; optional strategy_id, page. |
 | `get-backtest` | One saved run; trades, equity and strategy_snapshot only when named in include. |
@@ -93,7 +96,7 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 | `get-trade` | Get one strategy trade by ID. |
 | `delete-trade` | Delete a trade record; does not touch the broker. |
 | `get-signal` | Get one signal by ID, with its strategy and trades. |
-| `delete-signal` | Delete a signal. This cannot be undone. |
+| `delete-signal` | Delete a signal. This cannot be undone. Refused only while its strategy is deployed, real and has orders on (retain-strategy first). |
 | `set-signal-action` | like, unlike, ignore, unignore, watch or unwatch a signal. |
 | `get-signal-actions` | Get how the authenticated user has marked a signal: liked, ignored, watched. |
 | `get-workspaces` | The user's Workspaces document and its revision. |
@@ -122,9 +125,9 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 | `list-popular-news` | Paginated popular news. |
 | `list-conditions` | All conditions. |
 | `get-condition` | Condition by id. |
-| `create-condition` | Create condition. |
-| `update-condition` | Update condition by id. |
-| `delete-condition` | Delete condition by id. |
+| `create-condition` | Create condition. Refused while the strategy is deployed: retain-strategy first. |
+| `update-condition` | Update condition by id. Refused while the strategy is deployed: retain-strategy first. |
+| `delete-condition` | Delete condition by id. Refused while the strategy is deployed: retain-strategy first. |
 | `submit-contact-form` | Submit contact form. |
 | `report-issue` | Report issue. |
 | `submit-support-request` | Submit support request. |
