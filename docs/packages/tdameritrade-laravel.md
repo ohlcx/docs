@@ -1,6 +1,6 @@
 # tdameritrade-laravel
 
-**Composer:** `ohlcx/tdameritrade-laravel` · **Repository:** [github.com/ohlcx/tdameritrade-laravel](https://github.com/ohlcx/tdameritrade-laravel) (private)
+**Composer:** `ohlcx/tdameritrade-laravel` · **Repository:** [github.com/ohlcx/tdameritrade-laravel](https://github.com/ohlcx/tdameritrade-laravel) (private) · **Edition:** Pro, Light
 
 ## Role
 
@@ -8,4 +8,4 @@ Low-level **TD Ameritrade / Schwab REST API** client for Laravel: OAuth, token r
 
 ## Usage
 
-Consumed by **schwab-integration**; host applications typically do not depend on this package directly.
+Required by **schwab-integration**, **trading-app**, **strategies** and **development-features**. Both applications also list it in their own requirements.

@@ -317,3 +317,82 @@
     text-align: center;
   }
 }
+
+/* ── Layout: use more of a wide screen ── */
+@media screen and (min-width: 76.25em) {
+  .md-grid {
+    max-width: 72rem;
+  }
+}
+
+/* ── Tables ──
+ * A table scrolls sideways inside its own wrapper, never the page.
+ * Words are not broken in the middle: a column is at least as wide as its longest word.
+ */
+.md-typeset__scrollwrap {
+  overflow-x: auto;
+}
+
+.md-typeset table:not([class]) {
+  font-size: 0.68rem;
+}
+
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+  padding: 0.55em 0.8em;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+.md-typeset table:not([class]) th {
+  white-space: nowrap;
+}
+
+/* Code in a cell keeps whole words; only a very long unbroken string may wrap. */
+.md-typeset table:not([class]) code {
+  word-break: normal;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+/* Short first column (HTTP method, name, argument): never wrapped. */
+.md-typeset table:not([class]) td:first-child {
+  white-space: nowrap;
+}
+
+/* Dense tables of five or more columns: smaller text, and room for the prose columns. */
+.md-typeset table:not([class]):has(th:nth-child(5)) {
+  font-size: 0.62rem;
+}
+
+.md-typeset table:not([class]):has(th:nth-child(5)) th,
+.md-typeset table:not([class]):has(th:nth-child(5)) td {
+  padding: 0.5em 0.65em;
+}
+
+.md-typeset table:not([class]):has(th:nth-child(5)) td:last-child {
+  min-width: 9rem;
+}
+
+/* Mermaid diagrams: centred, never wider than the column. */
+.md-typeset .mermaid {
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* Diagrams: white labels on solid nodes in both palettes. Diagrams that colour their own
+   nodes (the package groups) use fills chosen for white text; plain nodes get a navy fill. */
+.md-typeset .mermaid {
+  --md-mermaid-label-fg-color: #ffffff;
+  --md-mermaid-node-bg-color: #0f2140;
+  --md-mermaid-node-fg-color: #48cae4;
+}
+
+/* Narrow screens: a table of four or more columns scrolls inside its wrapper,
+   so its last (prose) column gets enough width to be read. */
+@media screen and (max-width: 44.984375em) {
+  .md-typeset table:not([class]):has(th:nth-child(4)) td:last-child {
+    min-width: 11rem;
+  }
+}

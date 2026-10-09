@@ -1,0 +1,289 @@
+{
+  "areas": [
+    {
+      "title": "Health and assistants",
+      "intro": "`ping` checks the connection. The two assistant tools run the same assistants as the OHLCX app and return plain text, not JSON. They call a language model, so they are slower than the data tools and their answers vary. For data you intend to process, call the data tools directly.",
+      "tools": [
+        ["ping", "Health check. Returns the text `pong`."],
+        ["run-support-agent", "Ask the support assistant, which answers from the knowledge base only. Returns plain text."],
+        ["run-trading-agent", "Ask the trading assistant, which reads the signed-in user's strategies, accounts and the knowledge base. Returns plain text."]
+      ]
+    },
+    {
+      "title": "Knowledge base",
+      "intro": "Reading the knowledge base needs no sign-in. Writing it is for admins.",
+      "tools": [
+        ["search-knowledge-base", "Search or list knowledge base articles, optionally by area or by text."],
+        ["get-knowledge-base-article", "Fetch one article by its slug."],
+        ["create-knowledge-base-article", "Create an article."],
+        ["update-knowledge-base-article", "Update an article by id."],
+        ["delete-knowledge-base-article", "Delete an article by id."]
+      ]
+    },
+    {
+      "title": "Accounts",
+      "intro": "Every tool here names an account by its account id and shows its number only as a masked label. Output shapes, the forms `account_id` accepts and the refusal for an account that is not yours are on [Accounts and identifiers](../accounts.md).",
+      "tools": [
+        ["list-accounts", "The user's linked brokerage accounts: each account's id, masked label, type, flags and balances."],
+        ["get-accounts-balances", "Daily balance history of every linked account in one call. The last 30 days unless `days` says otherwise."],
+        ["get-account-balance", "Daily balance history of one account."],
+        ["get-account-growth", "Growth data for one account."],
+        ["get-account-pnl", "Profit and loss data for one account."],
+        ["get-account-pnl-history", "Realized profit and loss over time for one account, for a period or between two dates. Needs the user's consent to P&L sync, given in the app."],
+        ["get-account-pnl-symbols", "Realized profit and loss by symbol for one account, for a period or between two dates. Needs the user's consent to P&L sync, given in the app."],
+        ["list-account-cash-transfers", "Deposits and withdrawals of one account, for a period or between two dates."]
+      ]
+    },
+    {
+      "title": "Orders (read-only)",
+      "intro": "These two tools read broker orders. No tool places, changes or cancels an order. See [Accounts and identifiers](../accounts.md#orders).",
+      "tools": [
+        ["list-orders", "Broker orders placed between two dates, across the linked accounts or for one."],
+        ["get-order", "One broker order by its id, with its legs, fills and status."]
+      ]
+    },
+    {
+      "title": "Strategies: reading",
+      "intro": "A strategy can be read only by the user who owns it. Paging and period filters are on [Limits and paging](../limits-and-paging.md).",
+      "tools": [
+        ["list-strategies", "The user's strategies. Up to 50 without arguments; `page` or `per_page` asks for the paged list."],
+        ["get-strategy", "One strategy by id, with its order accounts under `routing`."],
+        ["search-strategies", "Search the user's strategies by symbol."],
+        ["get-strategy-activities", "Activities of one strategy."],
+        ["get-strategy-conditions", "Conditions of one strategy."],
+        ["get-strategy-statistics", "One strategy's trade statistics (counts, win rate, profit and loss) for a period."],
+        ["get-strategies-statistics", "Trade statistics across all of the user's strategies for a period."],
+        ["get-strategy-performance", "One strategy's performance over time (the profit and loss series) for a period."],
+        ["get-strategies-performance", "Performance over time across all of the user's strategies for a period."],
+        ["get-strategy-timeline", "What a strategy did, day by day, over the last days (7 by default)."],
+        ["list-strategy-signals", "The signals a strategy has raised, 100 per page."],
+        ["list-strategy-trades", "The trades a strategy has taken, 100 per page."],
+        ["get-strategy-flags", "The flags a strategy's conditions have raised, 100 per page."]
+      ]
+    },
+    {
+      "title": "Strategies: changing",
+      "intro": "Read the `ohlcx://strategy-settings` resource before you create a strategy or change its settings. A deployed strategy refuses the changes marked below with \"Retain the strategy before changing it.\": retain it first. See [Strategies and order routing](../strategy-routing.md#the-deployed-lock).",
+      "tools": [
+        ["create-strategy", "Create a strategy. `payload` needs the fields listed in the `ohlcx://strategy-settings` resource."],
+        ["update-strategy", "Update a strategy's definition by id. Refused while the strategy is deployed."],
+        ["delete-strategy", "Delete a strategy by id. Refused while the strategy is deployed."],
+        ["duplicate-strategy", "Duplicate a strategy."],
+        ["update-strategy-settings", "Update one section of a strategy's settings; each section is validated on its own. Refused while the strategy is deployed."],
+        ["set-strategy-schedule", "Set the days and hours a strategy is allowed to run. Times are New York time. Refused while the strategy is deployed."],
+        ["clear-strategy-conditions-readings", "Clear the reading of every condition of a strategy. Refused while the strategy is deployed."],
+        ["clear-strategy-data", "Delete all of a strategy's signals, trades or flags. Cannot be undone. Flags: refused while deployed. Signals: refused only while deployed, real and with orders on. Trades: never refused."]
+      ]
+    },
+    {
+      "title": "Strategies: order routing and running",
+      "intro": "These tools decide whether a strategy runs, whether it sends orders, and to which accounts. They are walked through in order on [Strategies and order routing](../strategy-routing.md). Confirm each of them with the user first.",
+      "tools": [
+        ["list-strategy-accounts", "The linked accounts as a strategy's orders can be routed to them: account id, masked label, whether the account can receive orders now and, if not, the reason."],
+        ["set-strategy-accounts", "Choose the order accounts of a strategy: mode `selected` with account ids, or mode `all`. Never switches orders on or off. Refused while the strategy is deployed."],
+        ["set-strategy-flag", "Switch signals, trades or orders (or their notifications) on or off, or toggle them. On and toggle are refused while the strategy is deployed; off always works."],
+        ["set-strategy-status", "Switch a strategy on or off. On is refused while the strategy is deployed; off always works."],
+        ["deploy-strategy", "Deploy a strategy, so that the engine evaluates it."],
+        ["retain-strategy", "Retain a strategy: take it out of evaluation, so that it can be changed again. With `stop` true it also switches orders, trades and signals off."]
+      ]
+    },
+    {
+      "title": "Conditions",
+      "intro": "Conditions belong to a strategy. Writing one is refused while its strategy is deployed.",
+      "tools": [
+        ["list-conditions", "All of the user's conditions."],
+        ["get-condition", "One condition by id."],
+        ["create-condition", "Create a condition. Refused while its strategy is deployed."],
+        ["update-condition", "Update a condition by id. Refused while its strategy is deployed."],
+        ["delete-condition", "Delete a condition by id. Refused while its strategy is deployed."]
+      ]
+    },
+    {
+      "title": "Signals",
+      "intro": "",
+      "tools": [
+        ["list-signals", "The user's signals."],
+        ["get-signal", "One signal by id, with its strategy and trades."],
+        ["delete-signal", "Delete a signal. Cannot be undone. Refused only while its strategy is deployed, real and has orders on."],
+        ["set-signal-action", "Mark a signal for the user: like, unlike, ignore, unignore, watch or unwatch."],
+        ["get-signal-actions", "How the user has marked a signal: liked, ignored, watched."]
+      ]
+    },
+    {
+      "title": "Trades",
+      "intro": "A trade here is OHLCX's record of what a strategy did. It is not a broker order.",
+      "tools": [
+        ["list-trades", "The trades taken by the user's strategies, 100 per page."],
+        ["get-trade", "One strategy trade by id."],
+        ["delete-trade", "Delete a strategy trade from OHLCX's records. Does not close a position or cancel an order at the broker. Cannot be undone."]
+      ]
+    },
+    {
+      "title": "Backtests",
+      "intro": "The first four tools read and manage saved runs. The last five start and follow server-side runs and are listed only where the app has server backtests switched on. At most three backtests may wait or run at once.",
+      "tools": [
+        ["list-backtests", "The user's saved backtest runs, newest first, with each run's metrics."],
+        ["get-backtest", "One saved run: its period, settings, what-if overrides and metrics. The trade list, equity curve and strategy snapshot come only when named in `include`."],
+        ["rename-backtest", "Rename a saved run."],
+        ["delete-backtest", "Delete a saved run. Cannot be undone."],
+        ["run-backtest", "Start a server-side backtest of a strategy as it is now. It runs in the background: poll `get-backtest-job`."],
+        ["run-backtest-sweep", "Start a parameter sweep: the strategy is backtested once for every combination of one or two settings, and the results are ranked."],
+        ["list-backtest-jobs", "The user's server-side backtests and sweeps, newest first, with status and progress."],
+        ["get-backtest-job", "One server-side job: its status, progress, and when finished the saved run's `backtest_id` (a run) or the ranked result (a sweep)."],
+        ["cancel-backtest-job", "Cancel a server-side job that is still waiting or running."]
+      ]
+    },
+    {
+      "title": "Workspaces",
+      "intro": "Workspaces are the user's saved layouts of charts and widgets. They are saved as one document against a revision.",
+      "tools": [
+        ["get-workspaces", "The user's Workspaces document, with the revision to send back when saving."],
+        ["save-workspaces", "Save the whole Workspaces document against a revision. If it was changed somewhere else, nothing is saved and the current state and revision come back."]
+      ]
+    },
+    {
+      "title": "Watchlists",
+      "intro": "These tools change the user's own watchlists. Built-in watchlists are listed but not changed.",
+      "tools": [
+        ["list-watchlists", "The user's watchlists with their symbols, the built-in watchlists, and which built-in ones the user has hidden."],
+        ["create-watchlist", "Create an empty watchlist."],
+        ["rename-watchlist", "Rename one of the user's watchlists."],
+        ["delete-watchlist", "Delete one of the user's watchlists and the symbols in it. Cannot be undone."],
+        ["add-watchlist-symbols", "Add one or more symbols to a watchlist. Symbols already in it are kept once."],
+        ["remove-watchlist-symbol", "Remove one symbol from a watchlist."]
+      ]
+    },
+    {
+      "title": "Markets and price data",
+      "intro": "",
+      "tools": [
+        ["list-markets", "The available markets, or one market by id."],
+        ["get-ticker", "Ticker data for one symbol, or the tickers of one market."],
+        ["get-ticker-bars", "A symbol's price bars (open, high, low, close, volume) on a timeframe. The most recent 200 unless told otherwise; follow `meta.next_cursor` for more."],
+        ["get-ticker-analysis", "The published analysis for one symbol, 10 per page."],
+        ["get-market-calendar", "The market calendar."],
+        ["get-market-balance", "Market balance data, with optional filters."],
+        ["list-sectors", "The sectors."],
+        ["get-sector", "One sector by id."],
+        ["get-sector-balance", "Sector balance chart data, with optional filters."]
+      ]
+    },
+    {
+      "title": "Screeners",
+      "intro": "",
+      "tools": [
+        ["screen-market-gaps", "The symbols of a market that gapped at the open, each with its size, plus the market's gap statistics for the session."],
+        ["screen-asset-gaps", "One symbol's history of gaps on a timeframe: each gap, the gap statistics, and the bars they were found in."],
+        ["screen-technicals", "A market's symbols by their technical readings on a timeframe: moving averages, pivots and indicator signals, with the market's summary."]
+      ]
+    },
+    {
+      "title": "News",
+      "intro": "",
+      "tools": [
+        ["list-news", "News items, paged."],
+        ["get-news", "One news item by id."],
+        ["list-crypto-news", "Crypto news, paged."],
+        ["list-popular-news", "Popular news, paged."]
+      ]
+    },
+    {
+      "title": "Analysis and AI usage",
+      "intro": "",
+      "tools": [
+        ["get-analysis", "The user's AI analysis data (recent messages with attachments)."],
+        ["get-ai-usage", "The user's AI assistant usage: requests and tokens by agent and by source, for a date range."]
+      ]
+    },
+    {
+      "title": "Activities",
+      "intro": "",
+      "tools": [
+        ["list-activities", "The user's activity feed. An account named in an activity appears only by its masked label."],
+        ["log-activity", "Log an activity for the user."],
+        ["delete-activity", "Delete one of the user's activities by id."]
+      ]
+    },
+    {
+      "title": "Credits and billing",
+      "intro": "",
+      "tools": [
+        ["get-credits", "The user's credit balance and summary."],
+        ["get-transaction-history", "The user's billing and transaction history."],
+        ["list-credit-holds", "The user's credit holds, newest first: credits set aside for a staged-exit order, and whether each is still held, was captured or was released."]
+      ]
+    },
+    {
+      "title": "Support",
+      "intro": "The four ticket tools are listed only where the app is connected to the support desk. Tickets and replies reach the support team: confirm the wording with the user first.",
+      "tools": [
+        ["submit-contact-form", "Submit the contact form."],
+        ["report-issue", "Report an issue."],
+        ["submit-support-request", "Submit a support request."],
+        ["list-support-tickets", "The user's support tickets with their status."],
+        ["get-support-ticket", "One of the user's support tickets with its messages."],
+        ["create-support-ticket", "Open a support ticket with the OHLCX support team on behalf of the user."],
+        ["reply-support-ticket", "Add a message from the user to one of their support tickets."]
+      ]
+    },
+    {
+      "title": "Profile and settings",
+      "intro": "",
+      "tools": [
+        ["get-user", "The signed-in user: id, name, email and verification status. An admin may pass `user_id` to read another user."],
+        ["get-sessions", "The user's sessions."],
+        ["update-profile", "Update the user's profile details."],
+        ["update-password", "Change the user's password."],
+        ["delete-profile-photo", "Delete the user's profile photo."],
+        ["get-onboarding", "The user's onboarding state."],
+        ["complete-onboarding", "Submit or update the user's onboarding data."],
+        ["get-preferences", "The user's preferences."],
+        ["update-preferences", "Update the user's preferences."],
+        ["get-settings", "The user's settings."],
+        ["save-settings", "Save the user's settings."]
+      ]
+    },
+    {
+      "title": "Trading rooms and messages",
+      "intro": "",
+      "tools": [
+        ["get-group", "One trading room by id."],
+        ["create-group", "Create a trading room."],
+        ["update-group", "Update a trading room by id."],
+        ["delete-group", "Delete a trading room by id."],
+        ["invite-to-group", "Invite a user to a trading room."],
+        ["join-group", "Join a trading room."],
+        ["leave-group", "Leave a trading room."],
+        ["get-group-status", "The status of a trading room."],
+        ["discover-groups", "Trading rooms the user could join, optionally by name."],
+        ["browse-users", "Other OHLCX users to message or invite to a trading room, optionally by name."],
+        ["list-invites", "The user's trading room invites."],
+        ["send-invite", "Send a trading room invite."],
+        ["accept-invite", "Accept a trading room invite."],
+        ["respond-join-request", "Answer a request to join a trading room."],
+        ["list-pending-join-requests", "The requests to join the user's own trading rooms that are still waiting for an answer."],
+        ["send-message", "Send a message in a trading room."],
+        ["get-older-messages", "Load the messages before a given message."],
+        ["delete-message", "Delete a message by id."],
+        ["get-sidebar-conversations", "The user's conversation list."],
+        ["get-unread-messages", "The user's unread trading room and direct messages, by conversation."]
+      ]
+    },
+    {
+      "title": "Administration",
+      "intro": "These tools are listed only for a signed-in admin. The knowledge base write tools, also for admins, are under [Knowledge base](#knowledge-base).",
+      "tools": [
+        ["list-users", "List users, with optional search and paging."],
+        ["set-user-admin", "Make a user an admin, or remove that."],
+        ["update-user", "Update a user's name, email, admin flag or email verification."],
+        ["add-user", "Create a user."],
+        ["delete-user", "Permanently delete a user by id. You cannot delete your own user."],
+        ["get-user-billing", "Billing information for a user. An account in it appears only by its masked label."],
+        ["adjust-user-billing", "Adjust a user's credits or billing."],
+        ["set-user-billing-package", "Set a user's billing package."],
+        ["block-unblock-user", "Block or unblock a user."],
+        ["change-user-role", "Change a user's role."]
+      ]
+    }
+  ]
+}

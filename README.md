@@ -6,7 +6,7 @@
 
 ## What is OHLCX?
 
-OHLCX is a **Laravel + React** trading platform: Schwab brokerage integration, unified dashboard, strategies and signals, realtime messaging, credits billing, market data, news, and technical analysis. Optional **in-app AI assistants** and an **MCP server** (80+ tools) support developers and power users.
+OHLCX is a **Laravel + React** trading platform: Schwab brokerage integration, unified dashboard, strategies and signals, realtime messaging, credits billing, market data, news, and technical analysis. Optional **in-app AI assistants** and an **MCP server** (147 tools) support developers and power users.
 
 ## Editions
 
@@ -24,7 +24,7 @@ OHLCX is a **Laravel + React** trading platform: Schwab brokerage integration, u
 | **Architecture** | [Overview](docs/architecture/overview.md) · [Apps & packages](docs/architecture/apps-and-packages.md) · [Light vs Pro](docs/architecture/light-vs-pro.md) · [Data sources](docs/architecture/data-sources.md) |
 | **API** | [Reference](docs/api/reference.md) · [OpenAPI](docs/api/openapi.yaml) |
 | **AI** | [Overview](docs/ai/overview.md) · [In-app assistant](docs/ai/in-app-assistant.md) · [Agents](docs/ai/agents.md) · [Cursor & Boost](docs/ai/cursor-and-boost.md) · [Testing](docs/ai/testing.md) |
-| **MCP** | [Overview](docs/mcp/overview.md) · [Cursor setup](docs/mcp/cursor-setup.md) · [Tool catalog](docs/mcp/tools/README.md) |
+| **MCP** | [Overview](docs/mcp/overview.md) · [Cursor setup](docs/mcp/cursor-setup.md) · [Claude setup](docs/mcp/claude-setup.md) · [Agents setup](docs/mcp/agents-setup.md) · [Accounts and identifiers](docs/mcp/accounts.md) · [Strategies and order routing](docs/mcp/strategy-routing.md) · [Errors](docs/mcp/errors.md) · [Limits and paging](docs/mcp/limits-and-paging.md) · [Tool reference](docs/mcp/tools/reference.md) · [Changes](docs/mcp/changes.md) |
 | **Packages** | [Ecosystem map](docs/packages/README.md) |
 
 ## AI & MCP highlight
@@ -95,6 +95,17 @@ cd /path/to/_OHLCX/packages/ohlcx/trading-app
 ```
 
 That script copies manifest entries, refreshes `docs/mcp/tools/index.json`, runs `generate-mcp-tools-readme.php`, and applies public sanitization. Review the diff, then commit and push **this** `docs` repo.
+
+### MCP pages
+
+| File | How it is kept current |
+|------|------------------------|
+| `docs/mcp/tools/index.json` | A copy of the server's `src/Mcp/descriptors/index.json`, written by the sync script. Never edit it |
+| `docs/mcp/tools/README.md` | Generated from that index by the sync script. Never edit it |
+| `docs/mcp/tools/reference.md` | Generated in this repo: `python3 scripts/build_mcp_reference.py /path/to/trading-app/src/Mcp`. Arguments come from the server's descriptors, kind and availability from the tool classes, areas and one-line summaries from `scripts/mcp_tool_areas.json` |
+| The other pages under `docs/mcp/` | Written by hand. Review them whenever a tool's arguments, answer or refusals change |
+
+After a sync, run the build script. It stops if a tool has no summary in `scripts/mcp_tool_areas.json` or if `index.json` is not the server's current one. `--check` fails when `reference.md` is stale without writing it.
 
 See [Contributor access](docs/getting-started/contributor-access.md#publishing-to-this-repo).
 
