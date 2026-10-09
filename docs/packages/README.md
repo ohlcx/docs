@@ -23,13 +23,13 @@ Pro installs everything Light installs, plus eight packages of its own.
 | stripe-credits-billing | Credits bought through Stripe Checkout, and their use | 1.0.34 | [stripe-credits-billing](stripe-credits-billing.md) |
 | trading-rooms | Realtime messaging: direct messages, rooms, invites, live sessions | 1.0.49 | [trading-rooms](trading-rooms.md) |
 | user-profile | Profile management components and API | 1.012 | [user-profile](user-profile.md) |
-| goals | Daily, weekly and monthly realized P&L goal tracking (targets, progress calendar, admin oversight) | 1.0.11 | |
-| mail-kit | Shared branded email layout, components and markdown mail theme | 1.0.15 | |
-| booking | Self-hosted booking and scheduling (availability rules, public booking widget API, admin management API) | 1.0.18 | |
-| referrals | Peer-to-peer invitations and referral program (invite a friend, shareable referral codes, qualification and credit rewards) | 1.0.24 | |
-| pulse | Event visibility and Slack alerting for the package ecosystem | 1.0.23 | |
-| node-license-client | Node licensing client: a self-hosted deployment registers with a license server and reports to it | 1.0.14 | |
-| chat-bots | Simulated chat clients for load-testing and demonstrating trading-rooms' realtime messaging | 1.0.7 | |
+| goals | Realized P&L goals per linked account: daily, weekly and monthly targets and a progress calendar, read from schwab-integration's P&L | 1.0.11 | [goals](goals.md) |
+| mail-kit | Shared branded email layout and notification theme, with unsubscribe and suppression for every outgoing email | 1.0.15 | [mail-kit](mail-kit.md) |
+| booking | Self-hosted scheduling: session types, availability, public booking without an account, admin management, reminder emails | 1.0.18 | [booking](booking.md) |
+| referrals | Invitations between users and a referral program: referral codes, qualification, and a credit reward for the referrer | 1.0.24 | [referrals](referrals.md) |
+| pulse | Operator visibility: Slack alerts, digests and scheduled reports from the events of the installed packages | 1.0.23 | [pulse](pulse.md) |
+| node-license-client | Licensing of a self-hosted deployment (a node): registers with the license server, reports to it, and blocks the application while unlicensed | 1.0.14 | [node-license-client](node-license-client.md) |
+| chat-bots | Simulated chat users for load-testing and demonstrating trading-rooms' realtime messaging. A testing tool | 1.0.7 | [chat-bots](chat-bots.md) |
 
 ## Pro-only packages
 
@@ -40,9 +40,9 @@ Pro installs everything Light installs, plus eight packages of its own.
 | sectors | Sector definitions, sector tickers, sector balance snapshots and charts | 1.0.12 | [sectors](sectors.md) |
 | news | Featured news and articles | 1.0.15 | [news](news.md) |
 | analysis | Scheduled ticker analysis snapshots | 1.0.14 | [analysis](analysis.md) |
-| alpaca-trade-api-php | PHP SDK for the Alpaca trade API | 1.0.15 | |
-| development-features | Development features: broadcasting lifecycle, channels and data streaming API | 1.0.2 | |
-| node-management | Node licensing and management server (node registration, heartbeat, admin approve, reject and revoke API) | 1.0.13 | |
+| alpaca-trade-api-php | PHP SDK for the Alpaca API. In OHLCX it is used for market data and news | 1.0.15 | [alpaca-trade-api-php](alpaca-trade-api-php.md) |
+| development-features | Development features: market data stream listeners, broadcast channels and components built on them | 1.0.2 | [development-features](development-features.md) |
+| node-management | The license server for self-hosted deployments: node registration, heartbeat, admin approval. Dormant except on the one license authority | 1.0.13 | [node-management](node-management.md) |
 
 OHLCX Light does not install these. It reaches strategies, markets, sectors, news and analysis through the **hosted OHLCX API**, relayed by trading-app. See [Light vs Pro](../architecture/light-vs-pro.md).
 

@@ -105,16 +105,26 @@ nav:
   - Packages:
       - Ecosystem: packages/README.md
       - trading-app: packages/trading-app.md
-      - strategies: packages/strategies.md
       - schwab-integration: packages/schwab-integration.md
       - tdameritrade-laravel: packages/tdameritrade-laravel.md
       - stripe-credits-billing: packages/stripe-credits-billing.md
       - trading-rooms: packages/trading-rooms.md
       - user-profile: packages/user-profile.md
-      - sectors: packages/sectors.md
+      - goals: packages/goals.md
+      - mail-kit: packages/mail-kit.md
+      - booking: packages/booking.md
+      - referrals: packages/referrals.md
+      - pulse: packages/pulse.md
+      - node-license-client: packages/node-license-client.md
+      - chat-bots: packages/chat-bots.md
+      - strategies: packages/strategies.md
       - pricefeed: packages/pricefeed.md
+      - sectors: packages/sectors.md
       - news: packages/news.md
       - analysis: packages/analysis.md
+      - alpaca-trade-api-php: packages/alpaca-trade-api-php.md
+      - development-features: packages/development-features.md
+      - node-management: packages/node-management.md
   - Disclaimer: disclaimer.md
 
 extra:
