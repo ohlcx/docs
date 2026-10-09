@@ -2,6 +2,8 @@
 
 This page connects Cursor to the OHLCX MCP server of a local checkout. For what the server offers once connected, see the [MCP overview](overview.md).
 
+Using Claude or an agent instead? See [Claude setup](claude-setup.md) and [Agents setup](agents-setup.md).
+
 ## Prerequisites
 
 - A private clone of `ohlcx-light` or `ohlcx` with `composer install` done

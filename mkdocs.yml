@@ -93,6 +93,8 @@ nav:
   - MCP:
       - Overview: mcp/overview.md
       - Cursor setup: mcp/cursor-setup.md
+      - Claude setup: mcp/claude-setup.md
+      - Agents setup: mcp/agents-setup.md
       - Accounts and identifiers: mcp/accounts.md
       - Strategies and order routing: mcp/strategy-routing.md
       - Errors and refusals: mcp/errors.md

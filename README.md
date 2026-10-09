@@ -24,7 +24,7 @@ OHLCX is a **Laravel + React** trading platform: Schwab brokerage integration, u
 | **Architecture** | [Overview](docs/architecture/overview.md) · [Apps & packages](docs/architecture/apps-and-packages.md) · [Light vs Pro](docs/architecture/light-vs-pro.md) · [Data sources](docs/architecture/data-sources.md) |
 | **API** | [Reference](docs/api/reference.md) · [OpenAPI](docs/api/openapi.yaml) |
 | **AI** | [Overview](docs/ai/overview.md) · [In-app assistant](docs/ai/in-app-assistant.md) · [Agents](docs/ai/agents.md) · [Cursor & Boost](docs/ai/cursor-and-boost.md) · [Testing](docs/ai/testing.md) |
-| **MCP** | [Overview](docs/mcp/overview.md) · [Cursor setup](docs/mcp/cursor-setup.md) · [Accounts and identifiers](docs/mcp/accounts.md) · [Strategies and order routing](docs/mcp/strategy-routing.md) · [Errors](docs/mcp/errors.md) · [Limits and paging](docs/mcp/limits-and-paging.md) · [Tool reference](docs/mcp/tools/reference.md) · [Changes](docs/mcp/changes.md) |
+| **MCP** | [Overview](docs/mcp/overview.md) · [Cursor setup](docs/mcp/cursor-setup.md) · [Claude setup](docs/mcp/claude-setup.md) · [Agents setup](docs/mcp/agents-setup.md) · [Accounts and identifiers](docs/mcp/accounts.md) · [Strategies and order routing](docs/mcp/strategy-routing.md) · [Errors](docs/mcp/errors.md) · [Limits and paging](docs/mcp/limits-and-paging.md) · [Tool reference](docs/mcp/tools/reference.md) · [Changes](docs/mcp/changes.md) |
 | **Packages** | [Ecosystem map](docs/packages/README.md) |
 
 ## AI & MCP highlight

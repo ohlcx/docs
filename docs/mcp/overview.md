@@ -6,7 +6,9 @@ It offers 147 tools, 3 prompts and 1 resource. This page says what the server ca
 
 | Page | What it covers |
 |------|----------------|
-| [Connect a client](cursor-setup.md) | Configuring Cursor, checking the connection, troubleshooting |
+| [Cursor setup](cursor-setup.md) | Configuring Cursor, checking the connection, troubleshooting |
+| [Claude setup](claude-setup.md) | Connecting Claude Code, Claude Desktop and Claude on the web; getting a token |
+| [Agents setup](agents-setup.md) | Using the server from an agent you build: authentication, read-only allow-lists, confirmed writes |
 | [Accounts and identifiers](accounts.md) | Account ids, masked labels, what is never shown, the shape of every account and order answer |
 | [Strategies and order routing](strategy-routing.md) | Order accounts, switching orders on, deploy and retain, with the tool calls in order and every refusal |
 | [Errors and refusals](errors.md) | The sentences a client receives when a call fails and what to do with each kind |
