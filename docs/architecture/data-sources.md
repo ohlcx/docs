@@ -28,17 +28,6 @@ This document clarifies where data comes from in the OHLCX app: **our Laravel AP
   - Order placement: preview and submit orders to the broker.
 - **Where it’s called:** The React app uses **`useApiService`** (`resources/js/hooks/useApiService.jsx`), which calls the Schwab API directly (e.g. `fetch('https://api.schwabapi.com/...')`) with the user’s broker token. There is a circuit-breaker for repeated 401s. **This is not our Laravel API** — it’s a separate integration from the frontend to Schwab.
 
-### Schwab API reference (developer docs)
-
-| Topic | Document |
-|-------|----------|
-| Market Data REST (`marketdata/v1`) | [docs/schwab/market-data-rest.md](schwab/market-data-rest.md) — endpoints and parameters |
-| Market Data OpenAPI schemas | [docs/schwab/market-data-schemas.md](schwab/market-data-schemas.md) — `QuoteResponse`, `OptionChain`, `CandleList`, enums, errors |
-| Streamer / WebSocket (live L1, books, charts) | `_schwab_docs.html` (repo root) |
-| Accounts & Trading REST (`trader/v1`) | [docs/schwab/accounts-trading-rest.md](schwab/accounts-trading-rest.md) — accounts, orders, transactions, userPreference |
-| Accounts & Trading OpenAPI schemas | [docs/schwab/accounts-trading-schemas.md](schwab/accounts-trading-schemas.md) — `Order`, `SecuritiesAccount`, `Transaction`, `PreviewOrder`, enums |
-| Order stream (`ACCT_ACTIVITY`) | [resources/js/managers/ORDERS_STREAM.md](../resources/js/managers/ORDERS_STREAM.md) |
-
 ## Summary
 
 | Data / action              | Source              | How it’s called in the app      |
@@ -50,8 +39,5 @@ This document clarifies where data comes from in the OHLCX app: **our Laravel AP
 | Broker accounts/positions | Broker (Schwab)     | `useApiService` → Schwab API    |
 | Broker orders/transactions| Broker (Schwab)     | `useApiService` → Schwab API    |
 | Option chains, movers     | Broker (Schwab)     | `useApiService` → Schwab API     |
-| Market data REST reference | Docs only          | `docs/schwab/market-data-rest.md` |
 
 When adding features or debugging, check whether the data comes from our Laravel routes (and possibly the external OHLCX API behind them) or from the broker API via `useApiService`.
-
-**For agents:** Before changing Schwab REST endpoints, streamer behavior, or order/account payloads, follow `.cursor/rules/schwab-api-docs.mdc` and consult the Schwab docs table above.
