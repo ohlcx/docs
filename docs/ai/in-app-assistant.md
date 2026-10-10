@@ -30,7 +30,33 @@ Other endpoints: `POST /api/ai/agents/voice`, `POST /api/ai/agents/voice/realtim
 | `voice_output`, `voice` | optional | Spoken output, for signed-in users. |
 | `page_context` | optional object, `assistant` endpoint only | What the page shows. See below. |
 
-A streamed answer is a sequence of `data:` lines, each a JSON event (text as it is written, and the result of each tool the assistant called), ended by `data: [DONE]`. A failure inside the stream is one `error` event with a fixed sentence.
+A streamed answer is a sequence of `data:` lines, each a JSON event (text as it is written, and the result of each tool the assistant called), ended by `data: [DONE]`. A turn that fails is described under "A failed turn" below.
+
+### A failed turn
+
+A failed turn ends with one `error` event, then `data: [DONE]`:
+
+```
+data: {"type":"error","code":"timeout","error":"The request took too long. Try again, or ask for less at once.","retryable":true}
+```
+
+The keys are `type`, `code`, `error` and `retryable`, in that order. `error` is a fixed sentence for the code, so a client that knows no codes can show it. Nothing else about the cause is sent. It goes to the server log.
+
+| `code` | `error` | `retryable` | When | Status with `stream: false` |
+| ------ | ------- | ----------- | ---- | --------------------------- |
+| `timeout` | The request took too long. Try again, or ask for less at once. | true | A request to the model timed out. Also when the model sent nothing for about the whole timeout and the stream then ended. | 504 |
+| `busy` | The assistant is busy right now. Try again in a moment. | true | The model is rate limited or overloaded, on every provider tried or after part of the answer was sent. Also when one provider is busy and the other is out of credits. | 503 |
+| `too_long` | This conversation is too long to continue. Start a new one. | false | The request is larger than the model accepts. | 413 |
+| `step_limit` | The assistant could not finish in the allowed steps. Try a narrower question. | true | The assistant used all of its steps and the last thing that happened was a tool result. | 502 |
+| `unavailable` | The assistant is not available right now. | false | Every provider is out of credits. | 402 |
+| `failed` | The assistant could not answer. Try again. | true | Anything else. Also a stream that ended without the provider's end event, and one that ended with no text and no tool call. | 502 |
+
+- Events that were already sent stay sent. Text and tool results (cards included) come before the error event. When the stream itself ended normally (`step_limit`, and the `timeout` and `failed` cases that follow an end) and the exchange is saved, `conversation_id` comes before the error event as well.
+- An assistant has 12 steps, and each request to the model may take 120 seconds. A step is one round of tool calls. The error is sent only when the 12th round was reached. Tool calls and no text below that are an ordinary end: no error, and a card or a changed setting is a whole answer.
+- When a provider is out of credits, rate limited or overloaded, the next provider is tried, but only while nothing of the answer has been sent. A tool call counts as sent, so a tool never runs twice.
+- A request with `stream: false` answers the same object as JSON, with the status in the last column.
+- A request refused before the stream starts (for example 401, 419, 422 or 429) is not a failed turn and carries no `code`.
+- The browser keeps a failed turn in the conversation and sends it back to the server as one fixed assistant line, such as "[This request was not answered: it took too long.]". When text had already arrived, the line follows that text as "[This answer was cut off: ...]". The assistant is told to say only what the line says and never to guess why.
 
 ---
 

@@ -92,6 +92,11 @@ These got `limit` only to ask for fewer. The API stops where it always did, and 
 ### The in-app assistant
 
 - `list_brokerage_accounts`: an account's label is five asterisks and then up to four digits of a number the broker stores masked, or the last three characters of any other number (was four asterisks and up to four characters). It is the label every other tool shows for the same account.
+- **A failed turn has a code.** The stream's `error` event is now `{"type":"error","code":...,"error":...,"retryable":...}`. The codes are `timeout`, `busy`, `too_long`, `step_limit`, `unavailable` and `failed`, each with one fixed sentence under `error`, which is kept for clients that know no codes. The table is in [`in-app-assistant.md`](in-app-assistant.md#a-failed-turn). A stream that ends after tool calls and no text is an error only when the step limit was reached.
+- **A request with `stream: false` that fails** answers that same object as JSON, with status 504, 503, 413, 502, 402 or 502 by code. The old body, `{"text": "AI provider unavailable (insufficient credits or quota)."}`, is gone.
+- **New limits.** The three agents take at most 12 steps in a turn (before: 1.5 times the agent's tool count, which is more than 12 for a signed-in user) and each request to the model may take 120 seconds (before: 60).
+- **Failover.** The next provider is now tried when the first is rate limited or overloaded as well as out of credits, and only while nothing of the answer has been sent. A tool that started is never run on a second provider.
+- **The prompts** of the three agents have a rule for turns that failed and say the assistant cannot create or change a strategy or run a backtest. A host reads its own published copies of the prompts, so it gets the rule when it republishes them.
 
 ### The relay (OHLCX Light)
 
