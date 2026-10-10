@@ -239,6 +239,8 @@ When Claude connects, the server sends it instructions. They tell Claude to conf
 - deletes anything;
 - chooses a strategy's order accounts with `set-strategy-accounts`. This decides which brokerage accounts receive the strategy's orders. It never switches orders on.
 
+Also confirm a call to `run-trading-agent`: it is not read-only, because its assistant can change your settings and preferences.
+
 The instructions also state that no tool places, changes or cancels a broker order directly, and that a strategy that is switched on with orders on does. The full text is on the [overview](overview.md#the-servers-instructions).
 
 Instructions are a request to the model, not a lock. Keep your client asking before each call of a tool that writes, and do not choose "always allow" for these tools: `set-strategy-accounts`, `set-strategy-flag`, `set-strategy-status`, `deploy-strategy`, `retain-strategy`, `update-strategy-settings`, and any tool that deletes. The [tool reference](tools/reference.md) marks every tool as a read or a write.

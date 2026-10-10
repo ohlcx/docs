@@ -90,6 +90,7 @@ nav:
       - Agents: ai/agents.md
       - Cursor and Boost: ai/cursor-and-boost.md
       - Testing: ai/testing.md
+      - Changes: ai/changes-1.0.351.md
   - MCP:
       - Overview: mcp/overview.md
       - Cursor setup: mcp/cursor-setup.md

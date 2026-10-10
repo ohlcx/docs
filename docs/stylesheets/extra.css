@@ -389,10 +389,15 @@
   --md-mermaid-node-fg-color: #48cae4;
 }
 
-/* Narrow screens: a table of four or more columns scrolls inside its wrapper,
+/* Narrow screens: a table of three or more columns scrolls inside its wrapper,
    so its last (prose) column gets enough width to be read. */
 @media screen and (max-width: 44.984375em) {
-  .md-typeset table:not([class]):has(th:nth-child(4)) td:last-child {
+  .md-typeset table:not([class]):has(th:nth-child(3)) td:last-child {
     min-width: 11rem;
+  }
+
+  /* A long first cell may wrap here, so that it does not push the other columns off the screen. */
+  .md-typeset table:not([class]) td:first-child {
+    white-space: normal;
   }
 }

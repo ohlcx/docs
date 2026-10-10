@@ -1,6 +1,6 @@
 # trading-app
 
-**Composer:** `ohlcx/trading-app` · **Repository:** [github.com/ohlcx/trading-app](https://github.com/ohlcx/trading-app) (private) · **Edition:** Pro, Light
+**Composer:** `ohlcx/trading-app` · **Repository:** [github.com/ohlcx/trading-app](https://github.com/ohlcx/trading-app) (private) · **Edition:** Pro, Light · **Version:** 1.0.355
 
 ## Role
 

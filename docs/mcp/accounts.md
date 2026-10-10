@@ -46,14 +46,14 @@ Anything else is refused. An account that is not one of the caller's linked acco
 No linked account of yours has that id.
 ```
 
-The same sentence is given for another user's account and for an account nobody has, so the answer does not tell them apart. Nothing is asked of the broker in that case. Do not retry: call `list-accounts` and use an id from it.
+The same sentence is given for another user's account and for an account nobody has, so the answer does not tell them apart. Every account and order tool checks this itself, and nothing is asked about the account in that case. Do not retry: call `list-accounts` and use an id from it.
 
 | Tool | `account_id` | An id or key that is not yours |
 |------|--------------|--------------------------------|
 | `get-account-balance`, `get-account-growth`, `get-account-pnl` | Required | `No linked account of yours has that id.` |
-| `get-order` | Required | `No linked account of yours has that id.` |
+| `get-order` | Required | `No linked account of yours has that id.` An account of yours that is not linked with the broker for orders answers `That account of yours is not linked with the broker for orders. Link it again in OHLCX.` |
 | `list-orders` | Optional. Left out, `null` or empty lists every linked account | `No linked account of yours has that id.` |
-| `get-account-pnl-history`, `get-account-pnl-symbols`, `list-account-cash-transfers` | Required | A key that is not yours: `No linked account of yours has that id.` An account id is passed on to the accounts API, which answers only for the caller's own accounts: an id that is not yours fails with the tool's own sentence. See [Errors and refusals](errors.md) |
+| `get-account-pnl-history`, `get-account-pnl-symbols`, `list-account-cash-transfers` | Required | `No linked account of yours has that id.` |
 
 `set-strategy-accounts` is stricter: its `account_ids` are whole numbers only. A string is not read as an id there, and a key is never accepted. See [Strategies and order routing](strategy-routing.md).
 
@@ -63,7 +63,7 @@ The examples use made-up values. Fields the examples do not show are relayed as 
 
 ### `list-accounts`
 
-No arguments. Returns the user's linked accounts. `account_number` is the masked label.
+Optional `limit` (1 to 100). Returns the user's linked accounts, at most 100, the most recently linked first. `account_number` is the masked label.
 
 ```json
 {
@@ -89,7 +89,7 @@ Each account also carries its flags, its balances and, where the API sends them,
 
 ### `get-accounts-balances`
 
-Optional `days`: how many of the most recent days to return per account, up to 365 (default 30). Returns one entry per account. `account` is the masked label; `history` is oldest first.
+Optional `days`: how many of the most recent days to return per account, 1 to 365 (default 30). Optional `limit` (1 to 200, default 50) and `offset` for the accounts. Returns one entry per account. `account` is the masked label; `history` is oldest first.
 
 ```json
 {
@@ -116,7 +116,7 @@ With no linked account the answer is `{ "accounts": [] }`.
 
 ### `get-account-balance`
 
-Required `account_id`. Returns the daily balance history of one account, oldest first.
+Required `account_id`. Optional `limit` (1 to 360). Returns the daily balance history of one account, oldest first.
 
 ```json
 {
@@ -130,11 +130,23 @@ Required `account_id`. Returns the daily balance history of one account, oldest 
 
 ### `get-account-growth` and `get-account-pnl`
 
-Required `account_id`. The answer is the accounts API's growth or profit and loss data for that account. A full account number in it is replaced by the masked label.
+Required `account_id`. Optional `limit` (1 to 120). Both answer an object with the account and its rows, oldest first:
+
+```json
+{
+  "account_id": 4,
+  "account": "*****678",
+  "growth": [
+    { "date": "2026-10-01", "initial_balance": 24800.0, "final_balance": 25000.5, "growth_percentage": 0.81 }
+  ]
+}
+```
+
+`get-account-pnl` has the same shape with `pnl` in place of `growth`. The API reads the 120 most recent balance rows of an account.
 
 ### `get-account-pnl-history`, `get-account-pnl-symbols`, `list-account-cash-transfers`
 
-Required `account_id`. Optional `period`, or `from` and `to` dates (`YYYY-MM-DD`) that replace it. The default period is `month` for `get-account-pnl-history` and `ytd` for the other two. The answer is the accounts API's own. In it, `account_display` is the masked label.
+Required `account_id`. Optional `period`, or `from` and `to` dates (`YYYY-MM-DD`) that replace it. The default period is `month` for `get-account-pnl-history` and `ytd` for the other two. The answer is the accounts API's own. In it, `account_display` is the masked label. How many rows each returns, and how to read on, is on [Limits and paging](limits-and-paging.md).
 
 The two profit and loss tools need the user's consent to P&L sync, given in the app.
 

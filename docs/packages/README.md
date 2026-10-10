@@ -2,7 +2,7 @@
 
 OHLCX is built from **private Composer packages** under the [github.com/ohlcx](https://github.com/ohlcx) organization. This page lists every `ohlcx/*` package the two applications install, what each one is for, and how they depend on each other. Source requires authorized access.
 
-The lists and versions on this page are read from the applications' `composer.json` and `composer.lock`. The dependency diagram is read from each package's own `composer.json`.
+The lists on this page are read from the applications' `composer.json` and `composer.lock`. A version is the package's current release. The dependency diagram is read from each package's own `composer.json`.
 
 ## Applications
 
@@ -15,14 +15,14 @@ Pro installs everything Light installs, plus eight packages of its own.
 
 ## Packages in both editions
 
-| Package | Responsibility | Version (Pro / Light) | Page |
+| Package | Responsibility | Version | Page |
 |---------|----------------|-----------------------|------|
-| trading-app | The application layer: trading UI, API routes, relay to the hosted API on Light, knowledge base, in-app assistant, MCP server | 1.0.352 / 1.0.351 | [trading-app](trading-app.md) |
+| trading-app | The application layer: trading UI, API routes, relay to the hosted API on Light, knowledge base, in-app assistant, MCP server | 1.0.355 | [trading-app](trading-app.md) |
 | schwab-integration | Schwab account and token management: linked accounts, balances, profit and loss, cash transfers, order reads | 1.0.49 | [schwab-integration](schwab-integration.md) |
 | tdameritrade-laravel | Low-level client for the TD Ameritrade / Schwab API | 1.0.20 | [tdameritrade-laravel](tdameritrade-laravel.md) |
 | stripe-credits-billing | Credits bought through Stripe Checkout, and their use | 1.0.34 | [stripe-credits-billing](stripe-credits-billing.md) |
 | trading-rooms | Realtime messaging: direct messages, rooms, invites, live sessions | 1.0.49 | [trading-rooms](trading-rooms.md) |
-| user-profile | Profile management components and API | 1.012 | [user-profile](user-profile.md) |
+| user-profile | Profile management components and API | 1.0.22 | [user-profile](user-profile.md) |
 | goals | Realized P&L goals per linked account: daily, weekly and monthly targets and a progress calendar, read from schwab-integration's P&L | 1.0.11 | [goals](goals.md) |
 | mail-kit | Shared branded email layout and notification theme, with unsubscribe and suppression for every outgoing email | 1.0.15 | [mail-kit](mail-kit.md) |
 | booking | Self-hosted scheduling: session types, availability, public booking without an account, admin management, reminder emails | 1.0.18 | [booking](booking.md) |
