@@ -106,6 +106,26 @@ The page context comes from the browser, so the server treats it as data and not
 | `strategy_builder` | The Strategies page | Propose one draft strategy from the listed condition shapes. |
 | `strategy_routing` | A strategy's settings | Propose which linked accounts receive the strategy's orders. |
 
+A page of any of the three kinds may also send a list named `cards`. On a run it names the cards the page can draw. On every kind it may name `"handoff"`: the page can draw the button that opens the main AI Assistant. The assistant is never shown the list.
+
+### What a panel can reach
+
+In the drawer the assistant has its whole list of tools. On a page that sends a page context it has only the tools that fit that page:
+
+| Panel | It can |
+| ----- | ------ |
+| "Ask about this run" (also under a sweep's results) | Show the run's cards and propose a change or a sweep; read saved runs; read the list of strategies and one strategy's settings, conditions, recent signals and trades, and results; search the knowledge base; read the OHLCX website; read a symbol's daily or weekly price history. |
+| "Draft a strategy" | Propose a draft; read the list of strategies and one strategy's detail; search the knowledge base; read the OHLCX website; read a symbol's daily or weekly price history. |
+| "Ask about order accounts" | Propose the accounts; read the strategy's order accounts and the linked accounts; read the list of strategies; search the knowledge base; read the OHLCX website. |
+
+What a panel will not answer: anything else, such as account balances on a backtest run, news, the Screener, watchlists, billing or settings. Asked for one of those, it says in one short sentence that this page cannot do that part, shows a button that opens the main AI Assistant with the question (or says so in words, where the page cannot draw the button), and answers the rest of the question as usual. It is told never to offer to look such a thing up itself and never to answer it from memory. It cannot change Settings or Preferences from a panel.
+
+This is on by default. A host turns it off with `TRADING_APP_ASSISTANT_SCOPED_TOOLS=false` on the server; every panel then has the whole list again.
+
+### Price history
+
+On OHLCX Pro the assistant can read a symbol's price history with `get_ticker_bars`: its latest 5, 20 or 60 daily or weekly bars, with the change, the high and the low of that stretch, or what it did on one day. It states only figures that are in the result. For a day the market was closed it says so and names the last trading day before it. There are no intraday bars. It has this in the drawer, on a backtest run and on the Strategies page.
+
 ---
 
 ## Ask OHLCX
@@ -141,15 +161,21 @@ Ask OHLCX needs the server setting and a build switch of the front end. All are 
 | Trades shown as a card in "Ask about this run" | the same | also `VITE_RUN_ASSISTANT_TRADES=true` (needs only the panel's own switch) |
 | A breakdown of the trades shown as a card | the same | also `VITE_RUN_ASSISTANT_BREAKDOWN=true` (needs only the panel's own switch) |
 | Headline figures shown as tiles | the same | also `VITE_RUN_ASSISTANT_STATS=true` (needs only the panel's own switch) |
+| The equity and drawdown chart shown as a card | the same | also `VITE_RUN_ASSISTANT_EQUITY=true` (needs only the panel's own switch) |
 | "Undo last change" and "Start over" in "Ask about this run" | none: the server is told nothing new | also `VITE_RUN_ASSISTANT_UNDO=true` (with suggestion cards on) |
 | Drafting a strategy on the Strategies page | the same | `VITE_STRATEGY_ASSISTANT=true` (independent of the backtest switches) |
 | "Ask about order accounts" in a strategy's settings | the same | `VITE_STRATEGY_ROUTING_ASSISTANT=true` (independent of the others) |
+| The hand-off card on the three panels ("Ask in the AI Assistant") | the same | also `VITE_ASSISTANT_HANDOFF=true` (needs the panel's own switch, and the main AI Assistant on the page) |
 
-The server has one switch for all of it. The front-end switches only show or hide a panel or a card.
+The server has one switch for all of it. The front-end switches only show or hide a panel or a card. A second server setting, `TRADING_APP_ASSISTANT_SCOPED_TOOLS` (on by default), decides whether a panel's assistant has only the tools of its page; see "What a panel can reach".
 
 One of them has an order to keep. `VITE_RUN_ASSISTANT_TRADES` also tells the server that the page can draw the trades card, and the server offers the tool that shows trades only then. Switch it on only on a host whose installed package has that tool (`show_backtest_trades`) in the release where its filters are one `filters` list. The first shape of the tool had one argument for each filter, and a model given that shape may fill in every one, so that the card shows nothing. On an older package the page would still say it can draw the card, the assistant would read that with no tool and no rule behind it, and no card would ever come. Update the package first, then set the switch and build.
 
 The same order holds for `VITE_RUN_ASSISTANT_BREAKDOWN` and `VITE_RUN_ASSISTANT_STATS`. With either on, the page sends a list named `cards` with the run (`"trades"`, `"breakdown"`, `"stats"`: the ones it can draw), and the server offers `show_backtest_breakdown` and `show_backtest_stats` only for a name in that list. The package release that has those two tools and reads the list must be installed first. On an older package the list would reach the assistant as a key it knows nothing about, and no card would come. With both switches off the page sends no list, and what it sends is exactly what it sent before these cards. `"breakdown"` is listed only for a run whose every trade the page holds: a run that stored only some of its trades gets no breakdown card.
+
+`VITE_RUN_ASSISTANT_EQUITY` works the same way: with it on the page adds `"equity"` to that list (and sends the list for it alone), and the server offers `show_backtest_equity` only then. Install the package release that has that tool first. A package that reads the list but does not know `"equity"` ignores that one name and keeps the other cards; no chart card comes. `"equity"` is listed only for a run whose equity curve the page holds: a saved run opened without one is not offered the card. With the switch off nothing the page sends or shows is different.
+
+`VITE_ASSISTANT_HANDOFF` adds one name, `"handoff"`, to the same kind of list, on all three panels: on a backtest run it joins the names above (and brings the list by itself; under a sweep's results it is the only name), and on the Strategies page and in a strategy's settings the page sends a `cards` list for the first time, holding that one name. The server offers `suggest_main_assistant` only for a page that lists it. The page lists it only where the main AI Assistant can be opened: OHLCX Pro, signed in, with Embedded AI on, so that its drawer is on the page. The order of installing matters less here than for the other cards: a package that reads `cards` on a run ignores a name it does not know, and on the other two kinds of page the package builds what the model reads from the checked parts only, so a key it does not know is dropped and never reaches the model. Without the tool no card comes, and nothing else changes. With the switch off nothing the page sends or shows is different.
 
 What the panels do, beyond the steps above:
 
@@ -204,12 +230,25 @@ An answer carries at most one proposal.
 
 Trades are the one card that is not a proposal. Asked to see trades of the open backtest run, the assistant shows them as a card and never writes them as a table: the page draws the card from the trades it already holds, with the same columns as the Trades tab, the totals of every match, and a button that opens them in the Trades tab. The assistant is not shown those trades. An answer can carry this card and a proposal together. For a saved run the assistant can also read single trades itself (at most 50 rows at a time, with totals); for a run that was never saved it cannot, and says so.
 
-Two more cards show something and propose nothing, each behind its own switch:
+Three more cards show something and propose nothing, each behind its own switch:
 
 - **A breakdown.** Asked which hours, weekdays, exits, sides, calls or puts, or months did well or badly, the assistant shows the trades split into groups: one row for each group with its loss and profit as two bars, its trades, its win rate and its result, the best and the worst group marked, and a last row for all of them together. It can narrow the trades first ("the losing trades by entry hour"), which no tab of the page does. Each row has a button that opens that group in the Trades tab, except a group of trades the tab cannot filter for (a side or an exit the engine does not know, a trade that is neither a call nor a put).
 - **Headline figures.** Asked for an overview or for several figures side by side, the assistant shows one to six tiles like the ones at the top of the results. A figure the page does not hold is a dash, never zero. When the run on screen is a what-if the page is comparing with the run it came from, each tile also says what separates it from that run. The page decides that; the assistant cannot ask for it.
+- **Equity and drawdown.** Asked to see the equity curve, the drawdown over time or how the equity moved, the assistant shows the chart of the results page inside the answer: the equity as a line and, under it, how far it was below its peak. It is always the whole run; the assistant cannot ask for a part of it. Under the title one line written by the page says where the equity started and ended, the change, and the largest fall from a peak with the day it was at its lowest. The amounts are the ones the results header shows. The header's largest fall in money and its largest in percent can be two different falls; the line then says them apart ("Largest fall from a peak: $4,000.00, at its lowest on Jan 10, 2026. Largest in percent: 12.0%.") and never as one. "Show as table" replaces the chart with a short table (the end of each day, or of each week or month for a long run, at most 31 rows: the equity then and how far that was below its peak), and "Open the chart" goes to the chart in the results, which has the zoom and the other controls. The assistant is shown no point of the curve: it is told not to describe its shape and to state no value or date from it. When several answers of one conversation show the chart, only the newest draws it by itself; an older one keeps its line and a button that draws it there too.
 
-The page draws both from the run it holds. The assistant is shown no number by either card and is told to state none from them. An answer may carry trades, a breakdown, figures and one proposal together, one of each. The cards, the results header and the Metrics tab write a win rate and a sum of profits by one rule (a win rate to one decimal, money to the cent, worked out as the server works them out), so no two of them show different numbers for the same trades. After a what-if, or after a change is undone, a card that was drawn for another run says so and shows no live figure: a breakdown shows its title only, and the tiles become one line of the figures as they were shown then, under "Figures of an earlier run".
+The page draws all three from the run it holds. The assistant is shown no number by any of them and is told to state none from them. An answer may carry trades, a breakdown, figures, the equity chart and one proposal together, one of each. The cards, the results header and the Metrics tab write a win rate and a sum of profits by one rule (a win rate to one decimal, money to the cent, worked out as the server works them out), so no two of them show different numbers for the same trades. After a what-if, or after a change is undone, a card that was drawn for another run says so and shows no live figure: a breakdown shows its title only, the tiles become one line of the figures as they were shown then, under "Figures of an earlier run", and the equity card becomes its title and the line it had then, under "Equity and drawdown of an earlier run", with no chart.
+
+### The hand-off card
+
+Each panel's assistant has only the tools that fit its page. Asked for anything else (an account balance on a backtest run, a watchlist on the Strategies page), it says the page cannot do that and, with `VITE_ASSISTANT_HANDOFF` on, shows a small card under its answer:
+
+- One line: "This page can't do that. Ask the main AI Assistant."
+- One button: "Ask in the AI Assistant". It opens the AI Assistant drawer of the right sidebar and asks the user's own question from that turn there, as if they had typed and sent it. When the drawer already holds a conversation (one in progress, or the last one, which it opens by itself), a new chat is started first, as the drawer's New chat button does, so the question is not answered on top of something unrelated. The earlier conversation is not deleted: it stays in the drawer's history list. In an empty drawer the question is simply asked. What the user was typing in the drawer's message box is kept; pictures they had chosen there are dropped when a new chat is started, since they belonged to the conversation that is left.
+- Once the question was sent the button reads "Sent to the AI Assistant" and cannot be pressed again for that card. Asking the same thing again in the panel gives a new card.
+- If the drawer is busy (an answer is arriving there, or the microphone is on), or the question is longer than one message may be (16,000 characters), the question is put in the drawer's message box and not sent, and no new chat is started. It takes the place of what was typed there. The card then says "Opened in the AI Assistant. Your question was put in its message box, not sent." and its button becomes "Open the AI Assistant", which opens the drawer and puts the question in the box once more. It never sends it and leaves the drawer's conversation as it is. During a voice session the next spoken turn sends what was spoken, not the question.
+- If the drawer is closed, or leaves the page, before it took the question, the button comes back. The buttons are drawn only while the main AI Assistant can be opened.
+
+What travels is the user's question and nothing else: the tool returns no text, and nothing the panel's assistant wrote is passed on. The card is about the question, not about a run, so it works the same on a message kept from before a what-if or an undo. It proposes nothing, so an answer can carry it beside any other card. The panel under a sweep's results has it too. Where the main AI Assistant cannot be opened the page does not list the card, and the assistant only says in words where to ask.
 
 ### The accounts card
 
