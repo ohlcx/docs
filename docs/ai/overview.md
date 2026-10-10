@@ -2,7 +2,7 @@
 
 The `ohlcx/trading-app` package is the single source of truth for AI and MCP in both OHLCX Light and OHLCX Pro. It holds two separate things:
 
-- The **in-app assistant**: three AI agents behind `POST /api/ai/agents/*`, used by the assistant drawer and by the Ask OHLCX panels. 45 tools.
+- The **in-app assistant**: three AI agents behind `POST /api/ai/agents/*`, used by the assistant drawer and by the Ask OHLCX panels. 57 tools.
 - The **MCP server** `OHLCX`: 147 tools, 1 resource and 3 prompts for outside clients (an IDE, a desktop client), at `/mcp/ohlcx` and over stdio.
 
 The two do not share tools. An assistant tool is named in `snake_case` (`list_trading_strategies`); an MCP tool in `kebab-case` (`list-strategies`). The same subject can appear on both sides with a different shape.
@@ -25,6 +25,8 @@ Maintainers: the notes on how this is built (the MCP server's internals, order r
 - No tool shows a full brokerage account number or a broker's internal key for an account. An account is an id and a masked label such as `*****678`.
 - The in-app assistant cannot create, change, deploy or delete a strategy, and cannot choose a strategy's order accounts. It can offer a card; the user presses its button.
 - An MCP client can write: create and change strategies and conditions, retain and deploy, set order accounts, manage watchlists, send messages. The server tells the client's model to confirm with the user first. An MCP session acts as its signed-in user, and an access token gives everything that user can do through the server; there are no narrower token scopes.
+- The in-app assistant only reads the Screener, the user's watchlists and the realized results of the user's own linked accounts. There are no saved screeners to read, a watchlist holds symbols and no prices, and it has no tool for single closed trades, cash transfers or a profit and loss sync. It cannot create or change a watchlist or save a screener.
+- While the user has "Hide Account Balance" switched on, the assistant's account tools leave out every amount of money and give percentages and counts. If the preference cannot be read, it counts as on. The MCP server's own account tools do not follow this preference.
 - Admin tools are listed only for an admin.
 
 ## Host app wiring

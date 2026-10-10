@@ -60,6 +60,33 @@ The keys are `type`, `code`, `error` and `retryable`, in that order. `error` is 
 
 ---
 
+## The Screener, watchlists and account results
+
+A signed-in user can ask the Trading and the AI Assistant modes about three more subjects. They work on OHLCX Light and on OHLCX Pro, and need nothing switched on.
+
+| Subject | What the assistant can answer |
+| ------- | ----------------------------- |
+| The Screener | What gapped in a market, one symbol's gap history and how each gap played out, and a market's symbols by their technical readings. These are the Screener page's three screens, read when asked. |
+| Watchlists | Which watchlists the user has, built-in ones included, and the symbols of one of them. |
+| Account results | The realized profit and loss of one of the user's linked accounts for a period, by day, week or month, the same by symbol, and the account's balance over time. |
+
+Each answer is a sentence or two with the few figures or symbols that matter. The assistant does not write the rows out as a table or a list, and these tools draw no card. It names the period it used, so that "this month" and "the last 30 days" are not mixed up. With more than one linked account, the tool refuses until one is named by its id. If an account has never synced, or its sync failed, it says the figures may be incomplete.
+
+What it cannot read:
+
+- **Saved screeners.** There are none. The Screener page is three fixed screens, and the assistant has no list of screeners to read or a definition to open.
+- **Prices in a watchlist.** A watchlist holds symbols only. On OHLCX Pro the assistant can look up a price for a few symbols, one at a time.
+- **Single closed trades, deposits and withdrawals** of an account, and it cannot start a profit and loss sync.
+- **Anything it would have to change.** It cannot create, rename or change a watchlist, or save a screener.
+
+### Hide Account Balance
+
+If the user has "Hide Account Balance" switched on in Preferences, an answer about the user's accounts holds no amount of money. This covers the list of linked accounts (no balances or buying power), profit and loss (no profit, loss, fees or daily average) and the balance over time (no balances). Percentages, counts and dates are still given. The assistant says that amounts are hidden by that preference and does not estimate them. A result that cannot tell whether the preference is on is treated as hidden. Each of these results says `balances_hidden`, true or false, so a card drawn from one can rely on it.
+
+The MCP server's own account tools do not follow this preference. A client that reads an account through them gets the figures. The assistant reached through the MCP tool `run-trading-agent` does follow it.
+
+---
+
 ## Page context
 
 A page may send `page_context` with a message, so the assistant can answer about what is on screen.
@@ -75,7 +102,7 @@ The page context comes from the browser, so the server treats it as data and not
 
 | Kind | Page | What it lets the assistant do |
 | ---- | ---- | ----------------------------- |
-| `backtest_run` | A backtest run | Explain the run from its figures; propose one change to test or one sweep. |
+| `backtest_run` | A backtest run | Explain the run from its figures; propose one change to test or one sweep; show trades, a breakdown of them or headline figures as cards, where the page says it can draw them. |
 | `strategy_builder` | The Strategies page | Propose one draft strategy from the listed condition shapes. |
 | `strategy_routing` | A strategy's settings | Propose which linked accounts receive the strategy's orders. |
 
@@ -111,10 +138,18 @@ Ask OHLCX needs the server setting and a build switch of the front end. All are 
 | Comparing a what-if and checking it on the earlier period | the same | also `VITE_RUN_ASSISTANT_EVALUATE=true` (with suggestion cards on) |
 | Proposed sweeps | the same | also `VITE_RUN_ASSISTANT_SWEEPS=true` (with suggestion cards on) |
 | Running a proposed sweep on the server | the same | also `VITE_BACKTEST_SERVER_RUNS=true` |
+| Trades shown as a card in "Ask about this run" | the same | also `VITE_RUN_ASSISTANT_TRADES=true` (needs only the panel's own switch) |
+| A breakdown of the trades shown as a card | the same | also `VITE_RUN_ASSISTANT_BREAKDOWN=true` (needs only the panel's own switch) |
+| Headline figures shown as tiles | the same | also `VITE_RUN_ASSISTANT_STATS=true` (needs only the panel's own switch) |
+| "Undo last change" and "Start over" in "Ask about this run" | none: the server is told nothing new | also `VITE_RUN_ASSISTANT_UNDO=true` (with suggestion cards on) |
 | Drafting a strategy on the Strategies page | the same | `VITE_STRATEGY_ASSISTANT=true` (independent of the backtest switches) |
 | "Ask about order accounts" in a strategy's settings | the same | `VITE_STRATEGY_ROUTING_ASSISTANT=true` (independent of the others) |
 
 The server has one switch for all of it. The front-end switches only show or hide a panel or a card.
+
+One of them has an order to keep. `VITE_RUN_ASSISTANT_TRADES` also tells the server that the page can draw the trades card, and the server offers the tool that shows trades only then. Switch it on only on a host whose installed package has that tool (`show_backtest_trades`) in the release where its filters are one `filters` list. The first shape of the tool had one argument for each filter, and a model given that shape may fill in every one, so that the card shows nothing. On an older package the page would still say it can draw the card, the assistant would read that with no tool and no rule behind it, and no card would ever come. Update the package first, then set the switch and build.
+
+The same order holds for `VITE_RUN_ASSISTANT_BREAKDOWN` and `VITE_RUN_ASSISTANT_STATS`. With either on, the page sends a list named `cards` with the run (`"trades"`, `"breakdown"`, `"stats"`: the ones it can draw), and the server offers `show_backtest_breakdown` and `show_backtest_stats` only for a name in that list. The package release that has those two tools and reads the list must be installed first. On an older package the list would reach the assistant as a key it knows nothing about, and no card would come. With both switches off the page sends no list, and what it sends is exactly what it sent before these cards. `"breakdown"` is listed only for a run whose every trade the page holds: a run that stored only some of its trades gets no breakdown card.
 
 What the panels do, beyond the steps above:
 
@@ -126,6 +161,25 @@ What the panels do, beyond the steps above:
 - A proposed sweep always holds back 30% of the period to check the best result.
 - Creating a strategy from a draft has three outcomes: created, refused (nothing was stored, and the card offers the button again), or not known (the card says to check the strategies list and offers no second try).
 - One draft creates at most one strategy: a second click on the same card does nothing.
+
+### Undoing a change
+
+With `VITE_RUN_ASSISTANT_UNDO=true`, a change run from a card can be taken back without reloading the page. Two buttons appear in the panel once a card's what-if or sweep has run:
+
+- **Undo last change** puts back the run from before the most recent change, and the form with it. Press it again to go back one more.
+- **Start over** puts back the run from before the first change, in one step.
+
+What to know:
+
+- The run comes back exactly as it was: trades, equity curve, metrics, charts, the comparison it had and the form's settings. Nothing is run again and nothing is written. One thing may be read again: the price chart of a saved run, if it was still loading when the change started.
+- The cap is five: the page keeps the last five runs to go back to, besides the one on screen. The run to start over from is always one of them. After a sixth change in a row, the oldest step in between is dropped, and the last press of Undo then undoes several changes at once and goes straight to the start; its tooltip says how many.
+- Opening one of the combinations of a sweep that a card ran is one more change, undoable like the others: one step back shows the sweep's results again, and Start over still returns to the first run.
+- The conversation is not rewound. A line in it says "The last change was undone. The run on screen is the one before it." What was said about the undone run stays, marked by a line above it, and is no longer sent to the assistant. The assistant is told in one fixed sentence that the change was undone. After several steps back there is still one line at each end of what was undone, and the assistant still gets one sentence.
+- The card that was tried says "This change was tried and then undone. It can be run again." and has its button back. Cards from answers about the undone run have no button.
+- Pressing either button while a what-if, a sweep or an answer is still running stops it first. A what-if that was stopped is not saved.
+- Nothing saved is changed or deleted. If the form saves runs, a what-if that finished is already in Run history and stays there after an undo; the line in the conversation says so.
+- **New conversation** is something else: it clears what was said and leaves the run on screen as it is.
+- Running the backtest yourself, running a sweep from the form (or opening one of its combinations), opening a saved run or a server sweep, applying changes to the strategy or leaving the page ends it: there is nothing to undo after that. Editing the form without running does not end it; going back then overwrites the edit.
 
 ---
 
@@ -139,7 +193,7 @@ A proposing tool does one thing: it returns a proposal, which the page draws as 
 4. The page receives the proposal, checks it again against what it knows now, and draws the card. Names and labels on the card come from the page, not from the assistant.
 5. The user presses the button. The page sends an ordinary request from the user's own session, the same request the form on that page would send. The server decides, as it does for the form.
 
-An answer carries at most one card.
+An answer carries at most one proposal.
 
 | Card | Button | What the click does |
 | ---- | ------ | ------------------- |
@@ -147,6 +201,15 @@ An answer carries at most one card.
 | A sweep | Run this sweep | Runs the sweep. The strategy is not changed. |
 | A draft strategy | Create this strategy | Creates the strategy switched off: demo, paused, not deployed, with signals, trades, orders and notifications off. |
 | Order accounts | Set these accounts | Saves which accounts receive the strategy's orders. It never switches orders on and never deploys the strategy. |
+
+Trades are the one card that is not a proposal. Asked to see trades of the open backtest run, the assistant shows them as a card and never writes them as a table: the page draws the card from the trades it already holds, with the same columns as the Trades tab, the totals of every match, and a button that opens them in the Trades tab. The assistant is not shown those trades. An answer can carry this card and a proposal together. For a saved run the assistant can also read single trades itself (at most 50 rows at a time, with totals); for a run that was never saved it cannot, and says so.
+
+Two more cards show something and propose nothing, each behind its own switch:
+
+- **A breakdown.** Asked which hours, weekdays, exits, sides, calls or puts, or months did well or badly, the assistant shows the trades split into groups: one row for each group with its loss and profit as two bars, its trades, its win rate and its result, the best and the worst group marked, and a last row for all of them together. It can narrow the trades first ("the losing trades by entry hour"), which no tab of the page does. Each row has a button that opens that group in the Trades tab, except a group of trades the tab cannot filter for (a side or an exit the engine does not know, a trade that is neither a call nor a put).
+- **Headline figures.** Asked for an overview or for several figures side by side, the assistant shows one to six tiles like the ones at the top of the results. A figure the page does not hold is a dash, never zero. When the run on screen is a what-if the page is comparing with the run it came from, each tile also says what separates it from that run. The page decides that; the assistant cannot ask for it.
+
+The page draws both from the run it holds. The assistant is shown no number by either card and is told to state none from them. An answer may carry trades, a breakdown, figures and one proposal together, one of each. The cards, the results header and the Metrics tab write a win rate and a sum of profits by one rule (a win rate to one decimal, money to the cent, worked out as the server works them out), so no two of them show different numbers for the same trades. After a what-if, or after a change is undone, a card that was drawn for another run says so and shows no live figure: a breakdown shows its title only, and the tiles become one line of the figures as they were shown then, under "Figures of an earlier run".
 
 ### The accounts card
 
