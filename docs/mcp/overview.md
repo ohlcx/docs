@@ -11,10 +11,10 @@ It offers 147 tools, 3 prompts and 1 resource. This page says what the server ca
 | [Agents setup](agents-setup.md) | Using the server from an agent you build: authentication, read-only allow-lists, confirmed writes |
 | [Accounts and identifiers](accounts.md) | Account ids, masked labels, what is never shown, the shape of every account and order answer |
 | [Strategies and order routing](strategy-routing.md) | Order accounts, switching orders on, deploy and retain, with the tool calls in order and every refusal |
-| [Errors and refusals](errors.md) | The sentences a client receives when a call fails and what to do with each kind |
-| [Limits and paging](limits-and-paging.md) | Page sizes, cursors, caps and defaults of the list tools |
+| [Errors and refusals](errors.md) | The fixed sentences a client receives when a call fails and what to do with each kind |
+| [Limits and paging](limits-and-paging.md) | Pages, limits and offsets, each list tool's bounds, and the 256 KB size budget |
 | [Tool reference](tools/reference.md) | Every tool by area, with one line, its kind, who is offered it, and its arguments |
-| [Changes: account ids and order routing](changes.md) | Every tool whose input or output changed in the latest release, for clients that need to migrate |
+| [Changes](changes.md) | Every tool whose input or output changed in the latest releases, for clients that need to migrate |
 
 ## What the server can do
 
@@ -65,7 +65,7 @@ The server tells every client, in its instructions, to ask the user first. An op
 - deleting anything (a strategy, a condition, a signal, a trade, a backtest, a watchlist, a message, a user);
 - opening or answering a support ticket (`create-support-ticket`, `reply-support-ticket`): confirm the wording.
 
-The server also sends a hint with each tool (read-only, or destructive). The [tool reference](tools/reference.md#how-to-read-this-page) lists the hint of every tool. The hints help a client decide when to ask; they do not replace the list above.
+The server also sends a hint with each tool (read-only, or destructive). 81 of the 147 tools are marked read-only; the other 66 are not. The [tool reference](tools/reference.md#how-to-read-this-page) lists the hint of every tool. The hints help a client decide when to ask; they do not replace the list above.
 
 !!! warning "Orders are real"
     A deployed, real strategy with orders on sends orders to a brokerage account without asking again. Treat every tool in the table above as a decision the user makes, not the client.
@@ -124,8 +124,10 @@ Two tools run the assistants of the OHLCX app and return their answer as plain t
 
 | Tool | Reads | Offered to |
 |------|-------|------------|
-| `run-support-agent` | The knowledge base only | Everyone |
-| `run-trading-agent` | The signed-in user's strategies and accounts, and the knowledge base | A signed-in user |
+| `run-support-agent` | The knowledge base and pages of ohlcx.com, as a guest. It changes nothing | Everyone |
+| `run-trading-agent` | The knowledge base, pages of ohlcx.com, and the signed-in user's credits and billing, settings and preferences, feeds, community and linked accounts, and on OHLCX Pro markets and strategies | A signed-in user |
+
+`run-trading-agent` is not read-only. Its assistant can change the user's settings and preferences when the message asks for that, and for an admin it can also adjust a user's credits and set a user's billing package. It places no order and changes no strategy. Treat a call to it as a write.
 
 For data you intend to process, call the data tools directly. See [Agents](../ai/agents.md).
 

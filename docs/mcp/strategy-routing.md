@@ -78,7 +78,7 @@ This is the order that works for a strategy that should send real orders. The ex
 { "tool": "get-strategy", "arguments": { "id": "7" } }
 ```
 
-The strategy comes back with its switches and, under `routing`, its current order accounts: the mode, whether an order would reach an account now (`can_route`), and each account by its account id and masked label.
+The strategy comes back with its switches and, under `routing`, its current order accounts: the mode, whether an order would reach an account now (`can_route`), and each account by its account id and masked label, with whether orders can go there and, if not, the reason as a sentence. It is the same `routing` block that `set-strategy-accounts` answers, shown in step 3.
 
 If the strategy is deployed, retain it before you go on:
 
@@ -276,6 +276,6 @@ Any tool that writes a strategy can answer with one of these three sentences. An
 
 ## Reading a strategy's order accounts
 
-`get-strategy` returns the strategy's current choice under `routing`, so you can check it at any time without changing anything. Use `list-strategy-accounts` for the reason an account is not routable in plain words.
+`get-strategy` and `list-strategies` return each strategy's current choice under `routing`, so you can check it at any time without changing anything. The block is the one the routing tools give: a masked label for every account, `reason` as a sentence, `set_aside`, and at most 50 accounts with `more`.
 
 The `ohlcx://strategy-settings` resource carries the same rules in short form for the client to read.

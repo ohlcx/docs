@@ -93,7 +93,9 @@ Pass the server in `mcpServers` (TypeScript) or `mcp_servers` (Python), with `"t
 
 ### Restrict an agent to read-only tools
 
-The SDK allows and denies tools by name. It has no switch for "tools with a read-only hint", so build the allow-list from the [tool reference](tools/reference.md): every tool whose kind is Read.
+The SDK allows and denies tools by name. It has no switch for "tools with a read-only hint", so build the allow-list from the [tool reference](tools/reference.md): every tool whose kind is Read. 81 of the 147 tools are.
+
+`run-trading-agent` is not one of them. It runs an assistant that can change the user's settings and preferences and, for an admin, a user's credits and billing package. Keep it off a read-only allow-list. `run-support-agent` only reads and is marked read-only.
 
 Two options do the work together:
 
