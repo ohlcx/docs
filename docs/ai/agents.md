@@ -12,6 +12,8 @@ The agents are separate from the MCP server. The MCP server has 147 tools for ou
 | Trading | The drawer's "AI Trading Assistant" mode; the MCP tool `run-trading-agent` | required |
 | Unified | The drawer's "AI Assistant" mode and the Ask OHLCX panels | optional |
 
+Each agent may take at most 12 steps in one turn, and a single request to the model may take 120 seconds. If a turn fails or hits a limit, the user reads one fixed sentence and the cause goes to the server log. The codes and sentences are in [`in-app-assistant.md`](in-app-assistant.md#a-failed-turn).
+
 A guest has three tools and nothing else: `search_knowledge_base_articles`, `get_knowledge_base_article_by_slug` and `fetch_ohlcx_webpage`.
 
 ## Tool groups
@@ -139,7 +141,7 @@ How a card works is in [`in-app-assistant.md`](in-app-assistant.md).
 
 ## What the agents cannot do
 
-No agent has a tool to create, change, deploy or delete a strategy, to switch a strategy or its orders on, to run a backtest, to place an order, or to choose a strategy's order accounts. The proposing tools only offer a card; the user presses its button.
+No agent has a tool to create, change, deploy or delete a strategy, to switch a strategy or its orders on, to run a backtest, to place an order, or to choose a strategy's order accounts. The proposing tools only offer a card; the user presses its button. The prompt of each agent tells it the same: it says it cannot create or change a strategy or run a backtest itself, and points to the page or the card that can.
 
 ## MCP bridge tools
 
@@ -150,7 +152,7 @@ Two MCP tools run an agent and return its answer as plain text. Both call the co
 | `run-support-agent` | everyone | The Support agent as a guest: the knowledge group only. It only reads, and is marked read-only. |
 | `run-trading-agent` | a signed-in MCP session | The Trading agent for that user, with every tool of the Trading column above. It can change the user's settings and preferences (and, for an admin, a user's credits and billing package), so it is not marked read-only. |
 
-Both take one argument, `message`, of at most 16,000 characters.
+Both take one argument, `message`, of at most 16,000 characters. They run the same agents, so the same 12 steps and 120 seconds apply.
 
 ```json
 { "message": "Summarize my linked accounts and strategies." }
