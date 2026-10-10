@@ -38,7 +38,7 @@ OHLCX MCP server: trading platform tools for strategies, backtests, signals, tra
 | `run-support-agent` | Laravel AI support agent, run as a guest; it only reads (knowledge base tools and the ohlcx.com page reader); triggers LLM. |
 | `run-trading-agent` | Laravel AI trading assistant with the signed-in user's own tools; not read-only (can change the user's settings and preferences; for an admin, a user's credits and billing package); authenticated MCP only; triggers LLM. |
 | `get-user` | Current user; admins may pass user_id for another user. |
-| `search-knowledge-base` | Filter by area, q; uses DB. Available to all. Bounds: `limit` 1-200 (default 50), `offset`; `more`, `next_offset`. |
+| `search-knowledge-base` | Filter by area; q is matched by its words, best match first; uses DB. Available to all. Bounds: `limit` 1-200 (default 50), `offset`; `more`, `next_offset`. |
 | `get-knowledge-base-article` | Article by slug; uses DB. Available to all. |
 | `list-accounts` | User's brokerage accounts: id, masked number, type, balances; never the broker's key or a full number. Bounds: the API lists at most 100; `limit` 1-100. |
 | `list-strategy-accounts` | Linked accounts as strategies can route orders to them: id, masked label, routable or the reason not. Pro only. Read-only. |

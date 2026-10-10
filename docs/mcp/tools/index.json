@@ -28,7 +28,7 @@
     { "name": "update-user", "descriptor": "update-user.json", "admin_only": true, "notes": "Update name, email, is_admin, email_verified." },
     { "name": "add-user", "descriptor": "add-user.json", "admin_only": true, "notes": "Create user." },
     { "name": "delete-user", "descriptor": "delete-user.json", "admin_only": true, "notes": "Delete by ID; cannot delete self." },
-    { "name": "search-knowledge-base", "descriptor": "search-knowledge-base.json", "admin_only": false, "notes": "Filter by area, q; uses DB. Available to all. Bounds: `limit` 1-200 (default 50), `offset`; `more`, `next_offset`." },
+    { "name": "search-knowledge-base", "descriptor": "search-knowledge-base.json", "admin_only": false, "notes": "Filter by area; q is matched by its words, best match first; uses DB. Available to all. Bounds: `limit` 1-200 (default 50), `offset`; `more`, `next_offset`." },
     { "name": "get-knowledge-base-article", "descriptor": "get-knowledge-base-article.json", "admin_only": false, "notes": "Article by slug; uses DB. Available to all." },
     { "name": "create-knowledge-base-article", "descriptor": "create-knowledge-base-article.json", "admin_only": true, "notes": "Create KB article." },
     { "name": "update-knowledge-base-article", "descriptor": "update-knowledge-base-article.json", "admin_only": true, "notes": "Update KB article by id." },

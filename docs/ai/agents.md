@@ -2,7 +2,7 @@
 
 OHLCX has three AI agents behind the in-app assistant. Each has a fixed list of tools, decided on the server by who is asking and which edition is running. This page lists them.
 
-The agents are separate from the MCP server. The MCP server has 147 tools for outside clients; the agents have 57 tools of their own, with different names (`snake_case`) and different output.
+The agents are separate from the MCP server. The MCP server has 147 tools for outside clients; the agents have 60 tools of their own, with different names (`snake_case`) and different output.
 
 ## Agents
 
@@ -31,13 +31,14 @@ A guest has three tools and nothing else: `search_knowledge_base_articles`, `get
 | Account results | `get_account_pnl`, `get_account_pnl_by_symbol`, `get_account_growth` |
 | Strategy insight | `get_trading_strategy`, `get_trading_strategy_statistics`, `get_trading_strategy_performance` |
 | Routing reader | `get_strategy_routing` |
-| Markets | `list_markets`, `get_market`, `list_tickers`, `get_ticker`, `list_sectors`, `list_sector_snapshots`, `get_sector`, `get_market_calendar`, `get_market_balance`, `get_sector_balance` |
+| Markets | `list_markets`, `get_market`, `list_tickers`, `get_ticker`, `list_sectors`, `list_sector_snapshots`, `get_sector`, `get_market_calendar`, `get_market_balance`, `get_sector_balance`, `get_ticker_bars` |
 | Saved runs | `list_backtest_runs`, `get_backtest_run`, `get_backtest_run_trades` |
 | Proposing | `propose_backtest_change`, `propose_backtest_sweep`, `propose_strategy_draft`, `propose_strategy_accounts` |
-| Showing | `show_backtest_trades`, `show_backtest_breakdown`, `show_backtest_stats` |
+| Showing | `show_backtest_trades`, `show_backtest_breakdown`, `show_backtest_stats`, `show_backtest_equity` |
+| Hand-off | `suggest_main_assistant` |
 | Admin billing | `get_user_billing`, `adjust_user_billing`, `set_user_billing_package` |
 
-57 tool names in all.
+60 tool names in all. In the code `fetch_ohlcx_webpage` is a group of its own, apart from the two knowledge base tools, so that a page can keep one without the other.
 
 ## Which agent has which group
 
@@ -58,6 +59,7 @@ A guest has three tools and nothing else: `search_knowledge_base_articles`, `get
 | Saved runs | no | no | yes | signed in, on OHLCX Pro, with Ask OHLCX switched on. `get_backtest_run_trades` only where the app reaches the strategies data as the signed-in user |
 | Proposing | no | no | yes | as Saved runs, and only on the page each one belongs to |
 | Showing | no | no | yes | as Saved runs, and only while a backtest run is open on a page that says it can draw that tool's card |
+| Hand-off | no | no | yes | as Saved runs, and only on an Ask OHLCX panel (a page with its own set of tools, see below) that says it can draw the button |
 | Admin billing | yes | yes | yes | signed in as an admin |
 
 ### Tool counts
@@ -65,10 +67,23 @@ A guest has three tools and nothing else: `search_knowledge_base_articles`, `get
 | Agent | Guest | Signed in, Light | Signed in, Pro |
 | ----- | ----- | ---------------- | -------------- |
 | Support | 3 | 21 | 21 |
-| Trading | not available | 30 | 41 |
-| Unified | 3 | 33 | 44, or 47 with Ask OHLCX on |
+| Trading | not available | 30 | 42 |
+| Unified | 3 | 33 | 45, or 48 with Ask OHLCX on |
 
-Pro counts are for an app that reaches the strategies data as the signed-in user, which is how Pro runs; they include `get_strategy_routing` and, with Ask OHLCX on, `get_backtest_run_trades`. An admin has three more tools in every column. On a page that offers one, the unified agent has one or two proposing tools more. On a backtest run it has one more tool for each card the page says it can draw: `show_backtest_trades`, `show_backtest_breakdown`, `show_backtest_stats`.
+Pro counts are for an app that reaches the strategies data as the signed-in user, which is how Pro runs; they include `get_strategy_routing` and, with Ask OHLCX on, `get_backtest_run_trades`. An admin has three more tools in every column. These are the counts in the drawer, where no page is open.
+
+### Tools on an Ask OHLCX panel
+
+On an Ask OHLCX panel the unified agent is offered only the tools that fit that page, not the whole list. For anything else it says in one sentence that the page cannot do that, and shows a button that opens the main AI Assistant with the question (`suggest_main_assistant`), or says so in words where the page cannot draw the button.
+
+| Panel | What it keeps | Tools |
+| ----- | ------------- | ----- |
+| "Ask about this run", with every card and both proposals | the run's cards and proposals, saved runs, the list of strategies and a strategy's detail, the knowledge base, the OHLCX website, a symbol's price history | 17 |
+| The same with nothing to draw or propose, and the panel under a sweep's results | the same without the cards and proposals | 11 |
+| "Draft a strategy" | the draft, the list of strategies and a strategy's detail, the knowledge base, the OHLCX website, a symbol's price history | 9 |
+| "Ask about order accounts", where accounts can be proposed | the proposal, the strategy's order accounts, linked accounts, the list of strategies, the knowledge base, the OHLCX website | 7 |
+
+Each has one more tool, the button, when the page lists it. The counts are for a signed-in Pro user with Ask OHLCX on, where the app reaches the strategies data as that user. An admin's three billing tools and the two tools that change Settings and Preferences are on none of these panels. A host can switch this off with `TRADING_APP_ASSISTANT_SCOPED_TOOLS=false`; every panel then has the whole list again.
 
 Why the lines are drawn there:
 
@@ -88,7 +103,7 @@ Every tool returns a bounded result. A list says how many rows it shows and whet
 
 | Tool | Returns |
 | ---- | ------- |
-| `search_knowledge_base_articles` | Up to 20 articles with a preview of each. |
+| `search_knowledge_base_articles` | Up to 20 articles with a preview of each, the best match first. A question is matched by its words: an article matches when it holds every word, and when none does, those that hold any are given. |
 | `get_knowledge_base_article_by_slug` | One article, cut at 48,000 bytes. |
 | `fetch_ohlcx_webpage` | The readable text of a page of the OHLCX website. No other site is accepted. |
 
@@ -158,6 +173,7 @@ So neither the assistant's text nor a card drawn from the result can show what t
 | `list_sectors`, `list_sector_snapshots`, `get_sector` | Sectors (up to 50); the latest snapshot of each; one sector with its first 50 symbols. |
 | `get_market_calendar` | The year's market-day counts. |
 | `get_market_balance`, `get_sector_balance` | The latest 26 points of a balance series. |
+| `get_ticker_bars` | A symbol's price history in daily or weekly bars: its latest 5, 20 or 60 bars, newest first, with the change, high, low and volume of that window; or the bar of one day, with the change from the close before. A day the market was closed returns no bar and names the last trading day before it. No intraday bars. A day given together with a period is the window that ends on that day. In weekly bars the periods are longer: 5 bars is about a month, 60 is over a year. |
 
 ### Ask OHLCX
 
@@ -169,10 +185,12 @@ So neither the assistant's text nor a card drawn from the result can show what t
 | `show_backtest_trades` | Shows trades of the open run as a card, drawn by the page from the trades it holds. Reads nothing and returns no trade. |
 | `show_backtest_breakdown` | Shows how the trades of the open run split by entry hour, weekday, exit kind, side, calls or puts, or month, as a card. Reads nothing and returns no figure. |
 | `show_backtest_stats` | Shows up to six headline figures of the open run as tiles. Reads nothing and returns no figure. |
+| `show_backtest_equity` | Shows the equity and drawdown chart of the open run as a card, drawn by the page from the curve it holds. Takes no arguments, reads nothing and returns no figure and no point of the curve. |
 | `propose_backtest_change` | A card: one change to test, with a "Run as what-if" button. Runs nothing. |
 | `propose_backtest_sweep` | A card: one sweep, with a "Run this sweep" button. Runs nothing. |
 | `propose_strategy_draft` | A card: one draft strategy, with a "Create this strategy" button. Creates nothing. |
 | `propose_strategy_accounts` | A card: one change of a strategy's order accounts, with a "Set these accounts" button. Changes nothing. |
+| `suggest_main_assistant` | A card with a button, "Ask in the AI Assistant", that opens the main assistant with the question the user just asked. Takes no arguments, reads nothing and passes on no text of the assistant's. If the assistant sends you to the main assistant without drawing the button, the page adds it. |
 
 How a card works is in [`in-app-assistant.md`](in-app-assistant.md).
 
