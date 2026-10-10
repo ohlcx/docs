@@ -35,7 +35,7 @@ cd ohlcx
 ./vendor/bin/phpunit --bootstrap vendor/autoload.php vendor/ohlcx/trading-app/tests/Unit/Services/LocalInternalApiAdapterTest.php
 ```
 
-More context: [AI overview](overview.md).
+More context: [AI_AND_MCP.md](overview.md).
 
 ### 2. Host smoke (routes registered)
 
@@ -59,10 +59,13 @@ cd ohlcx
 ## Troubleshooting
 
 - **Inventory test fails after adding a tool:** Update the expected sorted `name()` list in `AiAgentToolsInventoryTest` to match `SupportKnowledgeAgent`, `TradingAssistantAgent`, or `UnifiedAssistantAgent::tools()`.
+- **"is not classified" after adding an assistant tool:** every tool of the unified assistant must be listed as reading outside text or not. Add its name to one of the two lists in the accounts-proposal tool test (and, when it reads text someone other than the user wrote, register it as a reader).
+- **Catalog test fails after adding an MCP tool:** every registered tool needs a descriptor file with the same arguments and an entry in `descriptors/index.json`, in the server's order (the catalog test).
+- **A test passes alone and fails in the suite because of the data source:** the suite runs with `TRADING_APP_AI_DOMAIN_DATA_SOURCE=remote`; a test that needs the local source sets it itself.
 - **MCP descriptor mismatch in Cursor:** Canonical sources are `OHLCXServer.php` and `vendor/ohlcx/trading-app/src/Mcp/descriptors/`.
 - **Prompt tests fail:** Run `trading-app:install` so `resources/prompts` exists in the host.
 
 ## Additional information
 
-- Agents and MCP bridge: [agents.md](agents.md)
-- Package overview: [overview.md](overview.md)
+- Agents and MCP bridge: [../../ai/agents.md](agents.md)
+- Package overview: [../../AI_AND_MCP.md](overview.md)

@@ -64,7 +64,7 @@ For what the server can and cannot do, start with the [overview](../overview.md)
 |---|---|---|---|
 | [`ping`](#ping) | Health check. Returns the text `pong`. | Read | Everyone |
 | [`run-support-agent`](#run-support-agent) | Ask the support assistant, which answers from the knowledge base only. Returns plain text. | Read | Everyone |
-| [`run-trading-agent`](#run-trading-agent) | Ask the trading assistant, which reads the signed-in user's strategies, accounts and the knowledge base. Returns plain text. | Read | Signed in |
+| [`run-trading-agent`](#run-trading-agent) | Ask the trading assistant, which reads the signed-in user's strategies, accounts and the knowledge base. Returns plain text. | Write, no hint | Signed in |
 
 ### `ping`
 
@@ -88,7 +88,7 @@ Read. Everyone.
 
 Ask the trading assistant, which reads the signed-in user's strategies, accounts and the knowledge base. Returns plain text.
 
-Read. Signed in.
+Write, no hint. Signed in.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
@@ -116,6 +116,8 @@ Read. Everyone.
 |---|---|---|---|
 | `area` | string | no | Optional. Filter by area (e.g. dashboard, orders, overview). |
 | `q` | string | no | Optional. Search in title and content. |
+| `limit` | integer | no | Most articles to return, 1 to 200 (default 50). |
+| `offset` | integer | no | Rows to skip first, 0 to 100000 (default 0): give next_offset from the previous answer to read on. |
 
 ### `get-knowledge-base-article`
 
@@ -179,7 +181,9 @@ The user's linked brokerage accounts: each account's id, masked label, type, fla
 
 Read. Signed in.
 
-No arguments.
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `limit` | integer | no | Most accounts to return, 1 to 100 (default 100). |
 
 ### `get-accounts-balances`
 
@@ -189,7 +193,9 @@ Read. Signed in.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
-| `days` | integer | no | How many of the most recent days to return per account, up to 365 (default 30). |
+| `days` | integer | no | How many of the most recent days to return per account, 1 to 365 (default 30). |
+| `limit` | integer | no | Most accounts to return, 1 to 200 (default 50). |
+| `offset` | integer | no | Rows to skip first, 0 to 100000 (default 0): give next_offset from the previous answer to read on. |
 
 ### `get-account-balance`
 
@@ -200,6 +206,7 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `account_id` | string or integer | yes | The brokerage account: the id list-accounts gives. |
+| `limit` | integer | no | Most days to return, 1 to 360 (default 360). |
 
 ### `get-account-growth`
 
@@ -210,6 +217,7 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `account_id` | string or integer | yes | The brokerage account: the id list-accounts gives. |
+| `limit` | integer | no | Most days to return, 1 to 120 (default 120). |
 
 ### `get-account-pnl`
 
@@ -220,6 +228,7 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `account_id` | string or integer | yes | The brokerage account: the id list-accounts gives. |
+| `limit` | integer | no | Most days to return, 1 to 120 (default 120). |
 
 ### `get-account-pnl-history`
 
@@ -229,10 +238,11 @@ Read. Signed in.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
-| `account_id` | string or integer | yes | The brokerage account ID (see list-accounts). |
+| `account_id` | string or integer | yes | The brokerage account: the id list-accounts gives. |
 | `period` | string | no | Period to report on (default month). Allowed: `week`, `month`, `quarter`, `year`, `this_week`, `this_month`, `this_quarter`, `ytd`, `last_year`. |
 | `from` | string | no | Start date, YYYY-MM-DD. With to, replaces period. |
 | `to` | string | no | End date, YYYY-MM-DD. |
+| `limit` | integer | no | Most days to return, 1 to 1000 (default 366). |
 
 ### `get-account-pnl-symbols`
 
@@ -242,12 +252,15 @@ Read. Signed in.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
-| `account_id` | string or integer | yes | The brokerage account ID (see list-accounts). |
+| `account_id` | string or integer | yes | The brokerage account: the id list-accounts gives. |
 | `period` | string | no | Period to report on (default ytd). Allowed: `week`, `month`, `quarter`, `year`, `this_week`, `this_month`, `this_quarter`, `ytd`, `last_year`. |
 | `from` | string | no | Start date, YYYY-MM-DD. With to, replaces period. |
 | `to` | string | no | End date, YYYY-MM-DD. |
 | `symbol` | string | no | Only these symbols, comma separated. |
 | `underlying` | string | no | Only these underlying symbols (for options), comma separated. |
+| `limit` | integer | no | Most symbols to return, 1 to 200 (default 50). |
+| `offset` | integer | no | Rows to skip first, 0 to 100000 (default 0): give next_offset from the previous answer to read on. |
+| `round_trips_limit` | integer | no | Most round trips to return, the most recent first, 1 to 200 (default 50). |
 
 ### `list-account-cash-transfers`
 
@@ -257,14 +270,14 @@ Read. Signed in.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
-| `account_id` | string or integer | yes | The brokerage account ID (see list-accounts). |
+| `account_id` | string or integer | yes | The brokerage account: the id list-accounts gives. |
 | `period` | string | no | Period to list (default ytd). Allowed: `week`, `month`, `quarter`, `year`, `this_week`, `this_month`, `this_quarter`, `ytd`, `last_year`. |
 | `from` | string | no | Start date, YYYY-MM-DD. With to, replaces period. |
 | `to` | string | no | End date, YYYY-MM-DD. |
 | `direction` | string | no | Only deposits or only withdrawals. Allowed: `deposit`, `withdrawal`. |
 | `q` | string | no | Only transfers whose description contains this text. |
-| `page` | integer | no | Page number (default 1). |
-| `per_page` | integer | no | Rows per page, up to 50 (default 25). |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `per_page` | integer | no | Rows per page, 1 to 50 (default 25). |
 
 ## Orders (read-only)
 
@@ -285,9 +298,9 @@ Read. Signed in.
 |---|---|---|---|
 | `start_date` | string | yes | First day, YYYY-MM-DD. |
 | `end_date` | string | yes | Last day, YYYY-MM-DD. |
-| `account_id` | string or integer | no | Only this brokerage account: the id list-accounts gives. |
+| `account_id` | string or integer | no | Only this account's orders. The brokerage account: the id list-accounts gives. |
 | `status` | string | no | Only orders in this broker status, e.g. FILLED, WORKING, CANCELED. |
-| `max_results` | integer | no | Most orders to return, up to 500 (default 100). |
+| `max_results` | integer | no | Most orders to return, 1 to 500 (default 100). |
 
 ### `get-order`
 
@@ -328,8 +341,8 @@ Read. Signed in.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
-| `page` | integer | no | Page number (default 1). Giving page or per_page asks for the paged list. |
-| `per_page` | integer | no | Strategies per page, 1 to 50 (default set by the API). |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). Giving page or per_page asks for the paged list. |
+| `per_page` | integer | no | Strategies per page, 1 to 50 (default 50). |
 
 ### `get-strategy`
 
@@ -350,6 +363,8 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `symbol` | string | yes | The symbol to search strategies for. |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 29 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `get-strategy-activities`
 
@@ -360,6 +375,7 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `strategy_id` | string | yes | The strategy ID. |
+| `limit` | integer | no | Most activities to return, 1 to 10 (default 10). |
 
 ### `get-strategy-conditions`
 
@@ -370,6 +386,8 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `strategy_id` | string | yes | The strategy ID. |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 99 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `get-strategy-statistics`
 
@@ -430,7 +448,8 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `strategy_id` | integer | yes | The strategy ID. |
-| `days` | integer | no | How many days back (default 7). |
+| `days` | integer | no | How many days back from today, 1 to 365 (default 3). About three whole days fit one answer unless logged_only is set. |
+| `logged_only` | boolean | no | Leave out the minutes in which nothing was logged, so that many more days fit one answer (default false). |
 
 ### `list-strategy-signals`
 
@@ -441,7 +460,8 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `strategy_id` | integer | yes | The strategy ID. |
-| `page` | integer | no | Page number (default 1). |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 99 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `list-strategy-trades`
 
@@ -452,7 +472,8 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `strategy_id` | integer | yes | The strategy ID. |
-| `page` | integer | no | Page number (default 1). |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 99 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `get-strategy-flags`
 
@@ -463,7 +484,8 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `strategy_id` | integer | yes | The strategy ID. |
-| `page` | integer | no | Page number (default 1). |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 99 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ## Strategies: changing
 
@@ -664,7 +686,10 @@ All of the user's conditions.
 
 Read. Signed in.
 
-No arguments.
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 99 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `get-condition`
 
@@ -723,7 +748,10 @@ The user's signals.
 
 Read. Signed in.
 
-No arguments.
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 99 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `get-signal`
 
@@ -788,7 +816,8 @@ Read. Signed in.
 | `period` | string | no | Period to report on (default THISMONTH). Allowed: `TODAY`, `YESTERDAY`, `THISWEEK`, `LASTWEEK`, `THISMONTH`, `LASTMONTH`, `THISYEAR`, `LASTYEAR`. |
 | `status` | string | no | Trades to count: ALL, OPEN or CLOSED (default ALL). Allowed: `ALL`, `OPEN`, `CLOSED`. |
 | `direction` | string | no | Side: ALL, BUY or SELL (default both). Allowed: `ALL`, `BUY`, `SELL`. |
-| `page` | integer | no | Page number (default 1). |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 99 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `get-trade`
 
@@ -835,7 +864,8 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `strategy_id` | integer | no | Only runs of this strategy. |
-| `page` | integer | no | Page number (default 1). |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 24 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `get-backtest`
 
@@ -914,7 +944,8 @@ Read. Signed in, server backtests on.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `strategy_id` | integer | no | Only jobs of this strategy. |
-| `page` | integer | no | Page number (default 1). |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 24 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `get-backtest-job`
 
@@ -983,7 +1014,10 @@ The user's watchlists with their symbols, the built-in watchlists, and which bui
 
 Read. Signed in.
 
-No arguments.
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `limit` | integer | no | Most of the user's own watchlists to return, 1 to 200 (default 50). |
+| `offset` | integer | no | Rows to skip first, 0 to 100000 (default 0): give next_offset from the previous answer to read on. |
 
 ### `create-watchlist`
 
@@ -1061,6 +1095,8 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `market_id` | string | no | Optional. Filter by market ID. |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 9 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `get-ticker`
 
@@ -1072,6 +1108,8 @@ Read. Signed in.
 |---|---|---|---|
 | `symbol` | string | no | Optional. Ticker symbol (e.g. BTC-USD). |
 | `market_id` | string | no | Optional. Market ID to list tickers for. |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 999 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `get-ticker-bars`
 
@@ -1087,7 +1125,7 @@ Read. Signed in.
 | `to` | string | no | Latest bar: a date (YYYY-MM-DD, taken to the end of that day) or date and time, UTC. |
 | `order` | string | no | desc for newest first (default), asc for oldest first. Allowed: `asc`, `desc`. |
 | `session` | string | no | Only bars of one session; applies to timeframes of 30Min and shorter. Allowed: `regular`, `pre`, `after`. |
-| `limit` | integer | no | Bars to return, up to 1000 (default 200). |
+| `limit` | integer | no | Bars to return, 1 to 1000 (default 200). |
 | `cursor` | string | no | meta.next_cursor from the previous call, to continue. |
 
 ### `get-ticker-analysis`
@@ -1099,7 +1137,8 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `symbol` | string | yes | The ticker symbol, e.g. SPY. |
-| `page` | integer | no | Page number (default 1). |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 9 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `get-market-calendar`
 
@@ -1127,7 +1166,8 @@ Read. Signed in.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
-| `per_page` | integer | no | Optional. Page size. |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `per_page` | integer | no | Rows per page, 1 to 100 (default 10). |
 
 ### `get-sector`
 
@@ -1137,7 +1177,7 @@ Read. Signed in.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
-| `sector_id` | string | yes | Sector id (numeric). |
+| `sector_id` | string | yes | The sector's id, in digits (see list-sectors). |
 
 ### `get-sector-balance`
 
@@ -1168,6 +1208,8 @@ Read. Signed in.
 | `market_id` | integer | no | The market to screen (see list-markets; default 3). |
 | `gap_min_percent` | number | no | Smallest gap to report, in percent (default 2). |
 | `direction` | string | no | Gap direction: up, down or both (default up). Allowed: `up`, `down`, `both`. |
+| `limit` | integer | no | Most gaps to return, 1 to 200 (default 50). |
+| `offset` | integer | no | Rows to skip first, 0 to 100000 (default 0): give next_offset from the previous answer to read on. |
 
 ### `screen-asset-gaps`
 
@@ -1181,6 +1223,8 @@ Read. Signed in.
 | `timeframe` | string | no | Bar timeframe (default 1Day). Allowed: `1Min`, `5Min`, `15Min`, `30Min`, `1Hour`, `4Hour`, `1Day`, `1Week`. |
 | `gap_min_percent` | number | no | Smallest gap to report, in percent (default 2). |
 | `direction` | string | no | Gap direction: up, down or both (default up). Allowed: `up`, `down`, `both`. |
+| `limit` | integer | no | Most gaps to return, 1 to 200 (default 50). |
+| `offset` | integer | no | Rows to skip first, 0 to 100000 (default 0): give next_offset from the previous answer to read on. |
 
 ### `screen-technicals`
 
@@ -1193,8 +1237,8 @@ Read. Signed in.
 | `market_id` | integer | no | The market to screen (see list-markets; default 6). |
 | `timeframe` | string | no | Bar timeframe (default 1Day). Allowed: `1Min`, `5Min`, `15Min`, `30Min`, `1Hour`, `4Hour`, `1Day`, `1Week`. |
 | `search` | string | no | Only symbols whose symbol or name contains this text. |
-| `page` | integer | no | Page number (default 1). |
-| `per_page` | integer | no | Rows per page, up to 50 (default 20). |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `per_page` | integer | no | Rows per page, 1 to 50 (default 20). |
 
 ## News
 
@@ -1213,8 +1257,8 @@ Read. Signed in.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
-| `page` | integer | no | Page number (default 1). |
-| `per_page` | integer | no | Items per page. |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `per_page` | integer | no | Rows per page, 1 to 50 (default 10). |
 
 ### `get-news`
 
@@ -1234,8 +1278,8 @@ Read. Signed in.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
-| `page` | integer | no | Optional. Page number. |
-| `per_page` | integer | no | Optional. Items per page. |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `per_page` | integer | no | Rows per page, 1 to 50 (default 10). |
 
 ### `list-popular-news`
 
@@ -1245,8 +1289,8 @@ Read. Signed in.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
-| `page` | integer | no | Optional. Page number. |
-| `per_page` | integer | no | Optional. Items per page. |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `per_page` | integer | no | Rows per page, 1 to 50 (default 10). |
 
 ## Analysis and AI usage
 
@@ -1261,7 +1305,10 @@ The user's AI analysis data (recent messages with attachments).
 
 Read. Signed in.
 
-No arguments.
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `per_page` | integer | no | Rows per page, 1 to 50 (default 10). |
 
 ### `get-ai-usage`
 
@@ -1289,7 +1336,10 @@ The user's activity feed. An account named in an activity appears only by its ma
 
 Read. Signed in.
 
-No arguments.
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `per_page` | integer | no | Rows per page, 1 to 50 (default 30). |
 
 ### `log-activity`
 
@@ -1333,7 +1383,9 @@ The user's billing and transaction history.
 
 Read. Signed in.
 
-No arguments.
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `limit` | integer | no | Most rows of each list to return, 1 to 100 (default 100). |
 
 ### `list-credit-holds`
 
@@ -1343,8 +1395,8 @@ Read. Signed in.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
-| `page` | integer | no | Page number (default 1). |
-| `per_page` | integer | no | Rows per page, up to 50 (default 25). |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `per_page` | integer | no | Rows per page, 1 to 50 (default 25). |
 
 ## Support
 
@@ -1399,6 +1451,8 @@ Read. Signed in, support desk connected.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `status` | string | no | Only tickets in this status. Allowed: `new`, `open`, `waiting_on_customer`, `waiting_on_staff`, `resolved`, `closed`. |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 19 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `get-support-ticket`
 
@@ -1466,7 +1520,10 @@ The user's sessions.
 
 Read. Signed in.
 
-No arguments.
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `limit` | integer | no | Most sessions to return, 1 to 200 (default 50). |
+| `offset` | integer | no | Rows to skip first, 0 to 100000 (default 0): give next_offset from the previous answer to read on. |
 
 ### `update-profile`
 
@@ -1668,6 +1725,8 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `search` | string | no | Only names containing this text. |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 9 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `browse-users`
 
@@ -1678,6 +1737,8 @@ Read. Signed in.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `search` | string | no | Only names containing this text. |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `offset` | integer | no | Rows of the page to skip first, 0 to 19 (default 0): give next_offset from the previous answer to read the rows the size budget left out of this page. |
 
 ### `list-invites`
 
@@ -1685,7 +1746,10 @@ The user's trading room invites.
 
 Read. Signed in.
 
-No arguments.
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
+| `per_page` | integer | no | Rows per page, 1 to 50 (default 10). |
 
 ### `send-invite`
 
@@ -1724,7 +1788,10 @@ The requests to join the user's own trading rooms that are still waiting for an 
 
 Read. Signed in.
 
-No arguments.
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `limit` | integer | no | Most requests to return, 1 to 200 (default 50). |
+| `offset` | integer | no | Rows to skip first, 0 to 100000 (default 0): give next_offset from the previous answer to read on. |
 
 ### `send-message`
 
@@ -1762,7 +1829,10 @@ The user's conversation list.
 
 Read. Signed in.
 
-No arguments.
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `limit` | integer | no | Most conversations to return, 1 to 200 (default 50). |
+| `offset` | integer | no | Rows to skip first, 0 to 100000 (default 0): give next_offset from the previous answer to read on. |
 
 ### `get-unread-messages`
 
@@ -1770,7 +1840,9 @@ The user's unread trading room and direct messages, by conversation.
 
 Read. Signed in.
 
-No arguments.
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `limit` | integer | no | Most messages to return, 1 to 50 (default 50). |
 
 ## Administration
 
@@ -1798,8 +1870,8 @@ Read. Admin.
 | Argument | Type | Required | Description |
 |---|---|---|---|
 | `search` | string | no | Optional. Search by name or email. |
-| `per_page` | integer | no | Optional. Items per page (default 20, max 100). |
-| `page` | integer | no | Optional. Page number (default 1). |
+| `per_page` | integer | no | Optional. Rows per page, 1 to 100 (default 20). |
+| `page` | integer | no | Page number, 1 to 100000 (default 1). |
 
 ### `set-user-admin`
 

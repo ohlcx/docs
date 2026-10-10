@@ -25,7 +25,7 @@ In this app:
 - **React Page** → calls `window.axios('/api/...')` or `useApiService` (Schwab). See [React pages → API calls](#3-react-pages--api-calls).
 - **API endpoint** → defined in `routes/api.php` / `routes/remote.php` or by packages in `vendor/ohlcx/*`.
 - **Controller** → either a closure in `routes/remote.php` or a controller class in a package (e.g. AuthController, UserProfileController, ApiController in trading-rooms).
-- **Service** → `OHLCXApiService` for proxy routes; `OhlcxMainApi` (`RemoteOhlcxApiAdapter`) for MCP/AI domain tools; package-specific logic for auth, profile, chat, billing, accounts.
+- **Service** → `OHLCXApiService` for proxy routes; `OhlcxMainApi` for MCP/AI domain tools (`RemoteOhlcxApiAdapter` on Light, `LocalInternalApiAdapter` on Pro, where a request runs as the signed-in user); package-specific logic for auth, profile, chat, billing, accounts.
 - **Database / external** → app uses MySQL for User and package tables (activities, groups, messages, transactions, etc.); many read paths go to the **external OHLCX API** or **Schwab API** instead of the app DB.
 
 ---
@@ -76,6 +76,7 @@ In this app:
 | GET|POST|DELETE /api/activities | TradingApp (ActivityController) | ActivityFeed |
 | GET /api/accounts/* | Schwab (AccountGrowthController) | useAccountStore, dashboard, AccountInfo |
 | GET /api/credits, transaction-history, admin/users/*/billing | CreditsBilling (CreditController, BillingController, AdminBillingController) | CreditsPage, billing widgets |
+| GET/POST /api/credit-holds* | TradingApp (CreditHoldController) | CreditsPage, Trimmer order lifecycle |
 | group, invites, message, sidebar-conversations, user/{user}, users | TradingRooms (ApiController) | Chat, ConversationsSidebar, invites |
 | POST /api/contact-form, support-request, report-issue | TradingApp (SupportController) | ContactPage, support forms |
 
@@ -93,13 +94,16 @@ In this app:
 | Analysis | analysis, legacy_analysis | — |
 | News | news, popular-news, crypto-news | — |
 | Positions | — | positions, account data |
-| Orders | — | orders, preview, submit |
+| Orders | credit-holds (Trimmer reserve/capture/release/transfer side effects) | orders, preview, submit, replace |
+| Watchlist | `/api/user/watchlists` (custom list names + symbols); config built-in Default | positions, orders, quotes/subscriptions, localStorage UI prefs |
 | Options | — | option chains, instruments |
 | Movers | — | movers |
-| Credits | credits, transaction-history | — |
+| Credits | credits, transaction-history, credit-holds | — |
 | Chat | group, message, invites, sidebar-conversations, users | — |
 | User profile | user-profile/*, user | — |
 | Auth | login, register, password/*, two-factor-challenge, user | — |
+
+Watchlists store custom list names and symbols in the database (`user_watchlists`). The selected list, column visibility, and a symbol-name cache stay in browser localStorage. Read-only generated lists (`Positions`, `Orders`, etc.) are rebuilt from account and subscription state. See [trading-domain.md](trading-domain.md#7-watchlists) for storage, streaming, and quote backfill details.
 
 ---
 
