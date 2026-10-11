@@ -95,7 +95,7 @@ It is read only for a signed-in user, on OHLCX Pro, with Ask OHLCX switched on. 
 
 The page context comes from the browser, so the server treats it as data and nothing more:
 
-- It must be one of three kinds: `backtest_run`, `strategy_builder`, `strategy_routing`.
+- It must be one of four kinds: `backtest_run`, `strategy_builder`, `strategy_routing`, `backtest_setup`.
 - It is limited to 12,000 bytes. A block that is too large or of another kind is refused with status 422.
 - The assistant is shown a block the server rebuilt from keys, numbers and codes it already knows, never the block as sent. Text typed by anyone is cleaned and shortened or left out.
 - The assistant is told the block is data, not instructions.
@@ -103,10 +103,11 @@ The page context comes from the browser, so the server treats it as data and not
 | Kind | Page | What it lets the assistant do |
 | ---- | ---- | ----------------------------- |
 | `backtest_run` | A backtest run | Explain the run from its figures; propose one change to test or one sweep; show trades, a breakdown of them or headline figures as cards, where the page says it can draw them. |
-| `strategy_builder` | The Strategies page | Propose one draft strategy from the listed condition shapes. |
+| `strategy_builder` | The Strategies page | Propose one draft strategy from the listed condition shapes; where the page says so, with settings, up to four in an answer, and a backtest to open. |
+| `backtest_setup` | The backtest page before a run | Propose the settings of the run as a card the user applies or runs. |
 | `strategy_routing` | A strategy's settings | Propose which linked accounts receive the strategy's orders. |
 
-A page of any of the three kinds may also send a list named `cards`. On a run it names the cards the page can draw. On every kind it may name `"handoff"`: the page can draw the button that opens the main AI Assistant. The assistant is never shown the list.
+A page of any kind may also send a list named `cards`. On a run it names the cards the page can draw. On every kind it may name `"handoff"`: the page can draw the button that opens the main AI Assistant. The assistant is never shown the list.
 
 ### What a panel can reach
 
@@ -122,9 +123,48 @@ What a panel will not answer: anything else, such as account balances on a backt
 
 This is on by default. A host turns it off with `TRADING_APP_ASSISTANT_SCOPED_TOOLS=false` on the server; every panel then has the whole list again.
 
+### The user's own switch
+
+The inline panels ("Ask about this run", the panel under a sweep's results, "Draft a strategy" and "Ask about order accounts") also follow the user preference **Embedded AI** (Settings, Application): with it switched off none of them is drawn, as the main AI Assistant is not. Only a preference that is there and off hides them; a user who never touched it has it on. Switching it shows at once, without a reload.
+
+### Opening and closing a panel
+
+The three panels ("Ask about this run", "Draft a strategy", "Ask about order accounts") are collapsible sections that start closed. The heading is the button that opens and closes one (Enter or Space on the keyboard; it reports `aria-expanded`). Nothing is remembered across a reload, so each panel is closed again on the next visit.
+
+Closing only hides the panel: the conversation, an answer that is still arriving, any card and a half-typed question are kept, and are there when the panel is opened again. If an answer finishes while the panel is closed, its heading shows "New answer" until it is opened. A panel that replaces one the reader had open (a what-if started from a card, or a run put back with Undo) opens by itself, so the conversation they were following is not hidden.
+
 ### Price history
 
-On OHLCX Pro the assistant can read a symbol's price history with `get_ticker_bars`: its latest 5, 20 or 60 daily or weekly bars, with the change, the high and the low of that stretch, or what it did on one day. It states only figures that are in the result. For a day the market was closed it says so and names the last trading day before it. There are no intraday bars. It has this in the drawer, on a backtest run and on the Strategies page.
+On OHLCX Pro the assistant can read a symbol's price history with `get_ticker_bars`. It has this in the drawer, on a backtest run and on the Strategies page. It can be asked for:
+
+- **A calendar period**: today, yesterday, this week, last week, this month, last month, the last 3, 6 or 12 months, this year, last year. The server works out which days that is, from today's date in the symbol's time zone (New York; UTC for a crypto pair). The assistant does no date arithmetic.
+- **Dates you state**: "from 1 September to 15 September", "since 1 August". At most two years.
+- **The latest bars by count**: the last 5, 20 or 60 daily or weekly bars.
+- **One day**: what the symbol did on that day.
+
+What the periods mean:
+
+| You ask for | You get |
+|-------------|---------|
+| today | Today. On a weekend or a holiday there is no trading day: the assistant says so and names the last one. |
+| yesterday | The last trading day before today (Friday, when asked on a Saturday, Sunday or Monday). |
+| this week | Monday to today. |
+| last week | The whole week before this one, Monday to Friday (Monday to Sunday for a crypto pair). At a weekend the week that just ended is still "this week": on Saturday 10 October 2026, this week is Oct 5 to 9 and last week is Sep 28 to Oct 2. |
+| this month | The 1st to today. |
+| last month | The whole calendar month before this one. Asked on 10 October 2026: Sep 1 to 30, 2026. |
+| the last 3, 6 or 12 months | The trailing months up to today: from the day after the same day of the month that many months back. Asked on 10 October 2026, the last 3 months are Jul 11 to Oct 10, 2026. |
+| this year | 1 January to today. |
+| last year | The whole calendar year before this one. |
+
+"Last week", "last month" and "last year" are whole calendar units that are over. "The last 3, 6 or 12 months" run up to today, as "3 months" does in markets. Dates are written month first everywhere, in the answer and on the card.
+
+A period is always worked out from daily bars and holds nothing from outside its days. Its figures are of every trading day in it: the open of its first trading day, the close of its last, the change from the close of the last trading day before the period, the high, the low, the volume and the number of trading days. You can ask for it in daily, weekly or monthly bars. Weekly bars are the period's own days grouped into weeks (Monday first): September 2026 in weeks is five rows, the first "Sep 1 to 4" and the last "Sep 28 to 30", because the month cuts those two weeks. A row is partial whenever it does not cover its whole week or month, at either end: for a period that ends today, the newest month is "Oct 1 to 9", not "Oct 2026". A holiday does not make a week partial. If you name no bars, a period of up to 45 days comes in days, up to a year in weeks, and a longer one in months. A result has at most 93 daily rows, which is enough for three months in daily bars of any symbol, a crypto pair that trades every day included. A period with more daily bars than that comes in weeks, and one with more than 66 weeks in months; the assistant says so.
+
+The assistant says the span its answer covers, and "so far" only for what is not over: today's bar before the close, this week before its last session closes, this month while it has trading days left. On a Saturday the week just ended is closed. This follows the market's calendar, so a holiday and an early close are known. If the calendar cannot be read, a weekday is taken for a day that may trade until 16:00 New York. The assistant may then say "so far" a little longer than needed; it does not say "closed" early, and it never says a day was a holiday: of a day with no bar it says only that there is no trading day.
+
+It states only figures that are in the result. There are no intraday bars.
+
+With `VITE_ASSISTANT_PRICE_CARD` on, what it read is also drawn under its answer as a card, so the figures do not have to be read out of a sentence or a table. See "The price history card" below.
 
 ---
 
@@ -164,8 +204,13 @@ Ask OHLCX needs the server setting and a build switch of the front end. All are 
 | The equity and drawdown chart shown as a card | the same | also `VITE_RUN_ASSISTANT_EQUITY=true` (needs only the panel's own switch) |
 | "Undo last change" and "Start over" in "Ask about this run" | none: the server is told nothing new | also `VITE_RUN_ASSISTANT_UNDO=true` (with suggestion cards on) |
 | Drafting a strategy on the Strategies page | the same | `VITE_STRATEGY_ASSISTANT=true` (independent of the backtest switches) |
+| Settings on a draft strategy | the same | also `VITE_STRATEGY_ASSISTANT_SETTINGS=true` (with drafting on) |
+| Up to four drafts in one answer | the same | also `VITE_STRATEGY_ASSISTANT_MULTI=true` (with drafting on) |
+| "Backtest it" on a created draft | the same | also `VITE_STRATEGY_ASSISTANT_BACKTEST=true` (with drafting on) |
+| "Set up this backtest" under the backtest form, before a run | the same | also `VITE_BACKTEST_SETUP_ASSISTANT=true` (with `VITE_RUN_ASSISTANT`; what-if settings also need suggestion cards) |
 | "Ask about order accounts" in a strategy's settings | the same | `VITE_STRATEGY_ROUTING_ASSISTANT=true` (independent of the others) |
 | The hand-off card on the three panels ("Ask in the AI Assistant") | the same | also `VITE_ASSISTANT_HANDOFF=true` (needs the panel's own switch, and the main AI Assistant on the page) |
+| The price history card under an answer that read price bars | none: the server is told nothing new | `VITE_ASSISTANT_PRICE_CARD=true` (in a panel, with the panel's own switch; in the drawer, with `VITE_ASSISTANT_SHARED_THREAD=true`) |
 
 The server has one switch for all of it. The front-end switches only show or hide a panel or a card. A second server setting, `TRADING_APP_ASSISTANT_SCOPED_TOOLS` (on by default), decides whether a panel's assistant has only the tools of its page; see "What a panel can reach".
 
@@ -177,6 +222,8 @@ The same order holds for `VITE_RUN_ASSISTANT_BREAKDOWN` and `VITE_RUN_ASSISTANT_
 
 `VITE_ASSISTANT_HANDOFF` adds one name, `"handoff"`, to the same kind of list, on all three panels: on a backtest run it joins the names above (and brings the list by itself; under a sweep's results it is the only name), and on the Strategies page and in a strategy's settings the page sends a `cards` list for the first time, holding that one name. The server offers `suggest_main_assistant` only for a page that lists it. The page lists it only where the main AI Assistant can be opened: OHLCX Pro, signed in, with Embedded AI on, so that its drawer is on the page. The order of installing matters less here than for the other cards: a package that reads `cards` on a run ignores a name it does not know, and on the other two kinds of page the package builds what the model reads from the checked parts only, so a key it does not know is dropped and never reaches the model. Without the tool no card comes, and nothing else changes. With the switch off nothing the page sends or shows is different.
 
+The three switches of a fuller draft each add one key to what the Strategies page sends: `settable` (the settings a draft may set, from the settings forms' own fields), `max_drafts` (4) and `backtest` (`true`). The server offers the fuller draft tool only for a page that sent one of them, so the package release that reads them must be installed first; an older one ignores the keys and nothing changes. With all three off the page sends and draws exactly what it did before. `VITE_BACKTEST_SETUP_ASSISTANT` sends a page of a new kind, `backtest_setup`: a package that does not know the kind refuses the request with status 422, so install the release that has `propose_backtest_setup` before switching it on.
+
 What the panels do, beyond the steps above:
 
 - A panel's conversation is not saved to the user's assistant history and does not appear in the drawer. It lasts while the page is open.
@@ -187,6 +234,7 @@ What the panels do, beyond the steps above:
 - A proposed sweep always holds back 30% of the period to check the best result.
 - Creating a strategy from a draft has three outcomes: created, refused (nothing was stored, and the card offers the button again), or not known (the card says to check the strategies list and offers no second try).
 - One draft creates at most one strategy: a second click on the same card does nothing.
+- With fuller drafts on, see "A fuller draft" and "Setting a backtest up" below.
 
 ### Undoing a change
 
@@ -219,13 +267,14 @@ A proposing tool does one thing: it returns a proposal, which the page draws as 
 4. The page receives the proposal, checks it again against what it knows now, and draws the card. Names and labels on the card come from the page, not from the assistant.
 5. The user presses the button. The page sends an ordinary request from the user's own session, the same request the form on that page would send. The server decides, as it does for the form.
 
-An answer carries at most one proposal.
+An answer carries at most one proposal. The one exception is drafts, where the Strategies page says it shows several: an answer may then carry up to four draft cards, and still no proposal of another kind beside them.
 
 | Card | Button | What the click does |
 | ---- | ------ | ------------------- |
 | A change to test | Run as what-if | Runs the open backtest again with the change. The strategy is not changed. |
 | A sweep | Run this sweep | Runs the sweep. The strategy is not changed. |
 | A draft strategy | Create this strategy | Creates the strategy switched off: demo, paused, not deployed, with signals, trades, orders and notifications off. |
+| Settings for a backtest | Use these settings, or Run with these settings | Fills in the backtest form's run settings and what-if settings; the second then starts the run a click on Run backtest starts. The strategy is not changed. |
 | Order accounts | Set these accounts | Saves which accounts receive the strategy's orders. It never switches orders on and never deploys the strategy. |
 
 Trades are the one card that is not a proposal. Asked to see trades of the open backtest run, the assistant shows them as a card and never writes them as a table: the page draws the card from the trades it already holds, with the same columns as the Trades tab, the totals of every match, and a button that opens them in the Trades tab. The assistant is not shown those trades. An answer can carry this card and a proposal together. For a saved run the assistant can also read single trades itself (at most 50 rows at a time, with totals); for a run that was never saved it cannot, and says so.
@@ -238,6 +287,52 @@ Three more cards show something and propose nothing, each behind its own switch:
 
 The page draws all three from the run it holds. The assistant is shown no number by any of them and is told to state none from them. An answer may carry trades, a breakdown, figures, the equity chart and one proposal together, one of each. The cards, the results header and the Metrics tab write a win rate and a sum of profits by one rule (a win rate to one decimal, money to the cent, worked out as the server works them out), so no two of them show different numbers for the same trades. After a what-if, or after a change is undone, a card that was drawn for another run says so and shows no live figure: a breakdown shows its title only, the tiles become one line of the figures as they were shown then, under "Figures of an earlier run", and the equity card becomes its title and the line it had then, under "Equity and drawdown of an earlier run", with no chart.
 
+### A fuller draft
+
+Asked for "four SPY 15-minute option strategies with 10 contracts, pivot risk 1 to 3, OCO exits, a 09:30 to 15:45 schedule, and backtest them", the assistant used to refuse most of it: a draft was a name, a symbol, a timeframe, a side and conditions. With the three switches on it drafts all of it.
+
+**Before it is created** the card lists, under the name, the summary, the symbol, timeframe and direction and the conditions as before:
+
+- **Settings**, one line for each part of the settings forms the draft sets something in, in the forms' order, under the forms' own section names and in their labels: "What it trades: options, 10 contracts, in the money (default), same-day expiry (default)", "Stop and target: pivot levels, 1 to 3, minimum stop distance 0.5, minimum target distance 1", "Orders and exits: OCO exit, limit entry, entry order is good till cancelled", "Cancel an unfilled entry after 5 minutes" (or seconds, or bars; with no cancelling set the card says nothing of it, and the entry lasts as its time in force says), "Schedule: Mon to Fri, 09:30 to 15:45 New York time". An expiry is said as same-day (0DTE), next, weekly (the end of this week) or monthly (the end of this month). How long an entry order lasts is said in plain words (for the day, good till cancelled, either with extended hours), beside any entry. A pair is sized in units, not shares, and a limit of zero is said as no limit.
+- For a draft that trades options, the fixed line "Buys a call on a buy signal and a put on a sell signal." Which contract a signal buys is not a setting.
+- One dimmed line for everything left at a new strategy's defaults, by the part of the form it is in.
+- **Not built into this draft**: one fixed sentence for each part of the idea no condition can test yet (a session's opening range, one thing after another, a cross, an exponential average and so on). The sentences are the page's own; the assistant only names which apply.
+
+- Where the draft names a period for a backtest, one line says so before anything is created: "After it is created: a backtest of this month so far (Oct 1 to Oct 9, 2026) is ready from the card", and "and runs when you press Backtest it" where the user asked for the run. The days are the ones the Backtest tab will use. If the form would refuse that period for this strategy (option prices have a first day; the browser has a longest period) the line says the form's sentence instead of promising a run. A draft with no period has no such line.
+
+Then "Create this strategy", as before. Nothing exists until it is pressed.
+
+The page checks a draft's settings again before it draws the card, whatever the server said of them: each must be a setting the page listed and the settings forms have, each value one the form takes, and the settings must hold together as the forms require (option settings only with options, a trailing value only with a trail, a schedule's end after its start, and so on). A draft that does not pass is not drawn as a card. What is sent on create is the draft's four choices, those settings, the schedule's time zone when a schedule is on, and the nine switches last, all off and in demo: nothing a draft carries can switch anything on, choose an order account or leave demo.
+
+**After it is created** the card becomes a summary of what was done:
+
+- the strategy's name, as a link to it;
+- "Created as a demo, switched off." (or what is known of its switches, as before);
+- how many of its conditions were added, and which were not;
+- **Settings**: the same lines, each compared with the strategy the server answered with. A setting the answer does not show as it was sent says "could not be confirmed: open it and check" beside its line. A default the draft's card named ("in the money (default)") is compared too: where the answer states it otherwise the line is not confirmed, and where the answer does not state it at all the card no longer says it. The line about what a new strategy has elsewhere is no longer shown. The heading reads "Settings that were set" only when every line was confirmed. Nothing is called set because it was sent;
+- "Open the strategy" and, with the third switch and every condition added, "Backtest it".
+
+**Backtest it** opens the strategy's Backtest tab. A period the draft named ("this month so far", "the last three months") is filled into the form, through the form's own check. Where the user asked for the backtest to be run, the run starts once the tab is ready: the same run a click on Run backtest starts, through the same gate (a condition to test, settings that pass), once. It waits at most ten seconds for the tab and is dropped if the form is changed first. Opening the tab again later (a reload, Back and Forward, the address copied elsewhere) fills in nothing and runs nothing. Once the tab has taken the run, a further press of the button only fills the period in, and the line under the card says so. The tab reads none of this with `VITE_STRATEGY_ASSISTANT_BACKTEST` off.
+
+**Several drafts.** Each draft of an answer is its own card with its own button, labelled with its place ("Draft strategy 2 of 4") and headed by its name, with room between the cards. When such an answer arrives the conversation shows the first card, not the last, and stays there while the rest arrives. Creating one changes nothing about the others, and one the server refused leaves the others as they were. A draft that is the same strategy as an earlier one of the answer (symbol, timeframe, side, conditions and settings; the name does not count) is not drawn a second time.
+
+A symbol may also be a pair that trades around the clock, written with one "/" (BTC/USD). A pair has no options. A schedule that ends before it starts is not taken for any symbol.
+
+### Setting a backtest up
+
+Until now the backtest page had an assistant only once a run was on screen. With `VITE_BACKTEST_SETUP_ASSISTANT` a second panel, "Set up this backtest", sits under the form while no run is shown. It is closed until its heading is pressed, like the others.
+
+The page sends the strategy and its conditions as the form would run them now, the form itself (days, capital, costs, fill rules), the limits a period is held to, and what a proposal may set: the form's own fields, and with suggestion cards on the what-if settings a run's suggestion may change. The bar source and the save switch are never a proposal's.
+
+The assistant answers with a card: a title, a reason, and each proposed setting under the form's own label, with "now X" beside it where the form has another value. A period is named by a code the page turns into days ("this month so far", "the last three months"); the assistant never works out a date.
+
+- **Use these settings** fills in the form's run settings and what-if settings, and nothing else. Nothing runs.
+- **Run with these settings** does the same and then starts the run.
+
+Both read the proposal again against the form as it is at that moment. If the form changed so that it no longer fits (a first day now after the form's last day, a period over the limit), the card says so in the form's own sentence, offers nothing to run and does nothing until it fits again. Where the form's own Run backtest is disabled because the strategy has no condition switched on, the card offers no run either and says the same sentence; the settings can still be put into the form. After either button the card says what it did and has nothing left to press: "Running…" while the run is in progress, that it was run only once there is a result, and otherwise that the run did not start or did not finish. The strategy itself is never changed.
+
+When the run finishes, the conversation goes on under its result in "Ask about this run": what was said, the card as what it did, a line that says the backtest has run, and then the questions about the result. The card goes back to the assistant as one fixed line that says whether the proposal was put into the form or run. A proposal of settings is not read from an answer about a run. Only a run started from the form or from the card carries the conversation: a sweep's combination opened as a backtest does not. While a sweep has the screen the panel is hidden, not closed, and its conversation is there again afterwards.
+
 ### The hand-off card
 
 Each panel's assistant has only the tools that fit its page. Asked for anything else (an account balance on a backtest run, a watchlist on the Strategies page), it says the page cannot do that and, with `VITE_ASSISTANT_HANDOFF` on, shows a small card under its answer:
@@ -249,6 +344,40 @@ Each panel's assistant has only the tools that fit its page. Asked for anything 
 - If the drawer is closed, or leaves the page, before it took the question, the button comes back. The buttons are drawn only while the main AI Assistant can be opened.
 
 What travels is the user's question and nothing else: the tool returns no text, and nothing the panel's assistant wrote is passed on. The card is about the question, not about a run, so it works the same on a message kept from before a what-if or an undo. It proposes nothing, so an answer can carry it beside any other card. The panel under a sweep's results has it too. Where the main AI Assistant cannot be opened the page does not list the card, and the assistant only says in words where to ask.
+
+### The price history card
+
+When the assistant reads a symbol's price bars for an answer (`get_ticker_bars`), the page can draw what it read as a card under that answer. It is off unless the build sets `VITE_ASSISTANT_PRICE_CARD=true`. It is drawn in the inline panels ("Ask about this run", "Draft a strategy") and in the AI Assistant drawer when the drawer runs on the shared pieces (`VITE_ASSISTANT_SHARED_THREAD=true`). The drawer's older thread draws no card.
+
+For a calendar period or stated dates the card shows:
+
+- A title with the symbol, the period in words and what the bars are ("QQQ, September 2026, weekly bars"), then the first and last trading day and how many there are ("Sep 1 to 30, 2026 · 21 trading days"). A period that is not over adds "so far".
+- Six tiles from the period's own figures: the close with the day of the last trading day ("Sep 30"), the change in price and in percent with what it is measured from ("from the close on Aug 31"), the high, the low and the volume.
+- A chart with one candle for each row. The line above the chart names the row under the pointer by the days it covers ("Sep 1 to 4") and adds "(partial week)" for a week the period cuts.
+- "Show as table" lists the rows, newest first. The table is about ten rows tall at most: a longer one, such as three months of days, scrolls inside its box under a header that stays in place. The first column is "Day", "Week" or "Month" and names each row by its days ("Sep 7 to 11"); a cut week or month is marked "partial".
+- When the period has too many days for one card, a line says it is shown in weeks or months. The figures are still of every trading day.
+- A period with no trading day (today, asked on a Saturday) gets one line that says so and names the last trading day before it.
+
+The table has seven columns where they fit the card. Where they do not, it has four: open, close and change, each with a second figure under it (high, low, volume). The page measures what the seven columns of that table need and compares it with the card's width, so the choice follows the figures: in the AI Assistant drawer a table of three-digit prices can keep seven columns while one of five-digit prices gets four. No figure is cut off at the card's edge.
+
+For the latest bars of a symbol by count the card shows:
+
+- A title, the symbol and whether the bars are days or weeks ("QQQ, weekly bars"), and the span the result covers ("Weeks of Sep 14, 2026 to Oct 5, 2026"). A weekly bar's date is the first day of its week, so a weekly span is said in weeks.
+- Six tiles: the close, the change in price and in percent (with a plus or a minus written, and coloured), the high, the low, and the volume in short ("149.3M").
+- A chart of the bars, oldest on the left: candles, or a line of closes when a bar has no open, high or low. "Show as table" lists the bars instead, newest first: date (or "Week of"), open, high, low, close, the change from the bar before, and volume.
+- A newest bar that is still being made reads "so far" in the tile, on the chart and in the table. The card never says "closed" of it. A daily bar is finished once that day's session has closed, and a weekly bar once the week's last session has: on a Saturday nothing is "so far".
+
+For one day the card is small: that day's open, high, low, close and volume, and the change from the close before it. For a day the market was closed it says so and names the last trading day before it.
+
+Prices have no currency sign, as the app's own price columns have none. Every figure on the card comes from the tool's result, checked by the page; the assistant writes none of it, and a result that is not exactly what the tool writes draws nothing. A question about several symbols gets a card for each, up to six for one answer. Only the newest answer with such cards draws its charts by itself; an older card shows a button, "Show this one too".
+
+The card does not replace the answer. If the assistant also writes the bars out as a table, that table stays.
+
+What the card does not do: it is drawn for typed answers only (not for a spoken turn in the drawer), and it is not kept with a saved conversation, so a conversation opened again from the drawer's history shows the answers without their cards.
+
+### Tables in an answer
+
+A table the assistant writes takes the whole width of its answer, with space above and below it, and scrolls sideways inside the answer only when it does not fit. Columns of numbers are right-aligned in digits of one width. An answer that holds a table, or carries a card, is as wide as an answer may be instead of as wide as its words. This needs no switch and is the same in the drawer and in the panels.
 
 ### The accounts card
 
